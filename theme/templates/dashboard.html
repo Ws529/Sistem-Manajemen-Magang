@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+DASHBOARD
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h3 class="text-gray-500 text-sm font-medium">Tugas Tertunda</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">0</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h3 class="text-gray-500 text-sm font-medium">Logbook Disetujui</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">0</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <h3 class="text-gray-500 text-sm font-medium">Proyek Portofolio</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">0</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 shrink-0 flex items-center justify-between">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">DOKUMEN SERTIFIKAT</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    {% if sertifikat %}
+    <div class="bg-white border border-green-100 rounded-xl shadow-lg p-6 sm:p-8 flex flex-col items-center justify-center min-h-[400px]">
+        <div class="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-6 shadow-sm border border-green-100">
+            <i class="fa-solid fa-award text-green-500 text-4xl drop-shadow-sm"></i>
+        </div>
+        
+        <h3 class="text-base sm:text-xl font-bold text-gray-800 mb-2 tracking-wide uppercase text-center">Selamat! Sertifikat Magang Telah Terbit</h3>
+        <p class="text-xs sm:text-sm text-gray-500 text-center max-w-lg leading-relaxed mb-8">
+            Terima kasih telah menyelesaikan program magang. Sertifikat kelulusan Anda telah diterbitkan dengan nomor seri resmi di bawah ini.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-gray-50 border border-gray-200 rounded-lg py-3 px-6 mb-8 w-full sm:w-auto justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">No. Sertifikat:</span>
+            <span class="text-sm font-mono font-bold text-gray-800 tracking-wider text-center">{{ sertifikat.nomor_sertifikat }}</span>
+        </div>
+        
+        {% if sertifikat.file_sertifikat %}
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+            <!-- Preview Button -->
+            <button type="button" onclick="openPreviewModal()" class="bg-gradient-to-r from-[#00BFFF] to-sky-500 hover:from-[#00AEEF] hover:to-sky-600 text-white px-8 py-3.5 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-3 hover:-translate-y-0.5 cursor-pointer outline-none w-full sm:w-auto">
+                <i class="fa-solid fa-eye text-lg"></i> PRATINJAU SERTIFIKAT
+            </button>
+            
+            <!-- Download Button -->
+            <a href="{{ sertifikat.file_sertifikat.url }}" target="_blank" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3.5 rounded-lg text-sm font-bold tracking-wide shadow-md transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-3 hover:-translate-y-0.5 w-full sm:w-auto text-center">
+                <i class="fa-solid fa-cloud-arrow-down text-lg"></i> UNDUH SERTIFIKAT
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if sertifikat.file_sertifikat %}
+    <!-- Modal Preview Sertifikat -->
+    <div id="modalPreview" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#00BFFF] shrink-0">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Pratinjau Sertifikat</h3>
+                    <a href="{{ sertifikat.file_sertifikat.url }}" target="_blank" class="text-white/95 hover:text-white text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 font-bold tracking-wide uppercase">
+                        <i class="fa-solid fa-up-right-from-square text-[10px]"></i> Buka di Tab Baru
+                    </a>
+                </div>
+                <button onclick="closePreviewModal()" class="text-white/80 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- Modal Body (Iframe) -->
+            <div class="flex-1 min-h-0 w-full bg-gray-100">
+                <iframe src="{{ sertifikat.file_sertifikat.url }}" class="w-full h-full border-0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPreviewModal() {
+            const modal = document.getElementById('modalPreview');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('modalPreview');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal on background click
+        document.getElementById('modalPreview').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePreviewModal();
+            }
+        });
+    </script>
+    {% endif %}
+    {% else %}
+    <div class="border border-dashed border-gray-200 rounded-xl bg-white p-12 flex flex-col items-center justify-center min-h-[500px] shadow-sm">
+        <!-- Empty State Icon -->
+        <div class="w-16 h-16 rounded-full bg-[#E6F7FF] flex items-center justify-center mb-6">
+            <i class="fa-solid fa-file-signature text-[#00BFFF] text-2xl"></i>
+        </div>
+        
+        <!-- Title & Desc -->
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Sertifikat Belum Terbit</h3>
+        <p class="text-sm text-gray-500 text-center max-w-md leading-relaxed mb-10">
+            Sertifikat magang akan diterbitkan secara otomatis setelah Anda menyelesaikan 
+            seluruh periode magang dan laporan akhir disetujui oleh pembimbing.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">DATA PESERTA MAGANG</h2>
+    </div>
+    <div class="flex flex-row items-center gap-3 w-full sm:w-auto">
+        <!-- Export Button -->
+        <a href="{% url 'export_mahasiswa_csv' %}" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 h-9 rounded text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors w-1/2 sm:w-auto">
+            <i class="fa-solid fa-file-excel text-green-600"></i> EXPORT EXCEL
+        </a>
+        <button onclick="openModal()" class="bg-[#00bfff] hover:bg-[#00a3d9] text-white px-4 h-9 rounded text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors w-1/2 sm:w-auto">
+            <i class="fa-solid fa-plus"></i> TAMBAH PESERTA
+        </button>
+    </div>
+</div>
+
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg p-4 sm:p-6">
+    <div class="w-full overflow-x-auto">
+        <table id="dataTable" class="w-full text-left text-sm text-gray-600 min-w-[800px]">
+            <thead class="text-xs text-gray-400 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">PESERTA</th>
+                    <th scope="col" class="px-6 py-4">UNIVERSITAS</th>
+                    <th scope="col" class="px-6 py-4">KONTAK</th>
+                    <th scope="col" class="px-6 py-4 text-center">STATUS</th>
+                    <th scope="col" class="px-6 py-4 text-right">AKSI</th>
+                </tr>
+            </thead>
+            <tbody id="mahasiswaTableBody">
+                {% for m in mahasiswa_list %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 m-row">
+                    <td class="px-6 py-4">
+                        <p class="font-bold text-gray-800 text-xs">{{ m.first_name }}</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">{{ m.nim|default:"-" }}</p>
+                    </td>
+                    <td class="px-6 py-4 text-xs">{{ m.universitas|default:"-" }}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">
+                        <p class="flex items-center gap-2"><i class="fa-regular fa-envelope text-[#00bfff]"></i> {{ m.email }}</p>
+                        <p class="flex items-center gap-2 mt-1"><i class="fa-solid fa-phone text-[#00bfff]"></i> {{ m.no_telp|default:"-" }}</p>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="bg-green-100 text-green-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">AKTIF</span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
+                            <!-- Ubah Peserta -->
+                            <button type="button" onclick="openEditModal('{{ m.id }}', '{{ m.first_name|escapejs }}', '{{ m.nim|default:''|escapejs }}', '{{ m.universitas.nama|default:''|escapejs }}', '{{ m.email|escapejs }}', '{{ m.no_telp|default:''|escapejs }}')" class="text-gray-300 hover:text-[#00bfff] transition-colors" title="Ubah Data">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </button>
+                            <!-- Hapus Peserta -->
+                            <form method="POST" action="{% url 'admin_data_mahasiswa' %}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peserta ini?');" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="user_id" value="{{ m.id }}">
+                                <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors" title="Hapus Data">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <!-- Modal Content -->
+    <div class="bg-white rounded-md shadow-lg w-full max-w-md overflow-hidden mx-auto">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc]">
+            <h3 class="text-sm font-semibold text-gray-700">Tambah Data Peserta</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="p-6">
+            <form method="POST" action="{% url 'admin_data_mahasiswa' %}" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Nama Peserta <span class="text-red-500">*</span></label>
+                    <input type="text" name="nama" required placeholder="Masukkan nama lengkap" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">NIM Peserta</label>
+                    <input type="text" name="nim" placeholder="Masukkan NIM" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Asal Institusi / Universitas</label>
+                    <input type="text" name="universitas" placeholder="Masukkan nama institusi" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Email Peserta <span class="text-red-500">*</span></label>
+                    <input type="email" name="email" required placeholder="contoh@mail.com" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Nomor Telepon Peserta</label>
+                    <input type="text" name="no_telp" placeholder="08xxxxxxxxxx" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal()" class="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        BATALKAN
+                    </button>
+                    <button type="submit" class="bg-[#00bfff] hover:bg-[#00a3d9] text-white px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        SIMPAN DATA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Backdrop -->
+<div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <!-- Modal Content -->
+    <div class="bg-white rounded-md shadow-lg w-full max-w-md overflow-hidden mx-auto">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc]">
+            <h3 class="text-sm font-semibold text-gray-700">Ubah Data Peserta</h3>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="p-6">
+            <form method="POST" action="{% url 'admin_data_mahasiswa' %}" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="user_id" id="edit_user_id">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Nama Peserta <span class="text-red-500">*</span></label>
+                    <input type="text" name="nama" id="edit_nama" required placeholder="Masukkan nama lengkap" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">NIM Peserta</label>
+                    <input type="text" name="nim" id="edit_nim" placeholder="Masukkan NIM" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Asal Institusi / Universitas</label>
+                    <input type="text" name="universitas" id="edit_universitas" placeholder="Masukkan nama institusi" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Email Peserta <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="email" name="email" id="edit_email" readonly class="w-full border border-gray-200 bg-gray-50 rounded text-sm px-3 py-2 text-gray-400 focus:outline-none cursor-not-allowed">
+                        <button type="button" onclick="toggleEmailEdit()" id="btn_ubah_email" style="background-color: #f59e0b;" class="text-white text-[10px] font-bold px-3 py-2 rounded shrink-0 transition-colors shadow-sm uppercase tracking-wider hover:opacity-90">
+                            Ubah Email
+                        </button>
+                    </div>
+                    <p id="email_warning_text" style="color: #d97706;" class="text-[10px] mt-1.5 leading-relaxed hidden items-start gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation shrink-0 mt-0.5"></i>
+                        <span>Mengubah email akan memperbarui email masuk (login) peserta di sistem lokal dan Firebase Auth.</span>
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Nomor Telepon Peserta</label>
+                    <input type="text" name="no_telp" id="edit_no_telp" placeholder="08xxxxxxxxxx" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff]">
+                </div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeEditModal()" class="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        BATALKAN
+                    </button>
+                    <button type="submit" class="bg-[#00bfff] hover:bg-[#00a3d9] text-white px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        SIMPAN PERUBAHAN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let originalEmail = '';
+
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+            pageLength: 10
+        });
+    });
+
+    function openModal(id, nama, nim) {
+        const modal = document.getElementById('addModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    function closeModal() {
+        const modal = document.getElementById('addModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function openEditModal(id, nama, nim, universitas, email, noTelp) {
+        document.getElementById('edit_user_id').value = id;
+        document.getElementById('edit_nama').value = nama;
+        document.getElementById('edit_nim').value = nim;
+        document.getElementById('edit_universitas').value = universitas;
+        document.getElementById('edit_no_telp').value = noTelp;
+        
+        // Reset email input to default read-only state
+        originalEmail = email;
+        const emailInput = document.getElementById('edit_email');
+        emailInput.value = email;
+        emailInput.readOnly = true;
+        emailInput.classList.add('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+        emailInput.classList.remove('bg-white', 'text-gray-700');
+        
+        const warningText = document.getElementById('email_warning_text');
+        warningText.classList.add('hidden');
+        warningText.classList.remove('flex');
+        
+        const btn = document.getElementById('btn_ubah_email');
+        btn.textContent = 'Ubah Email';
+        btn.style.backgroundColor = '#f59e0b';
+
+        const modal = document.getElementById('editModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function toggleEmailEdit() {
+        const emailInput = document.getElementById('edit_email');
+        const warningText = document.getElementById('email_warning_text');
+        const btn = document.getElementById('btn_ubah_email');
+        
+        if (emailInput.readOnly) {
+            emailInput.readOnly = false;
+            emailInput.classList.remove('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+            emailInput.classList.add('bg-white', 'text-gray-700');
+            emailInput.focus();
+            warningText.classList.remove('hidden');
+            warningText.classList.add('flex');
+            
+            btn.textContent = 'Batal Ubah';
+            btn.style.backgroundColor = '#6b7280';
+        } else {
+            emailInput.readOnly = true;
+            emailInput.classList.add('bg-gray-50', 'text-gray-400', 'cursor-not-allowed');
+            emailInput.classList.remove('bg-white', 'text-gray-700');
+            emailInput.value = originalEmail;
+            
+            warningText.classList.add('hidden');
+            warningText.classList.remove('flex');
+            
+            btn.textContent = 'Ubah Email';
+            btn.style.backgroundColor = '#f59e0b';
+        }
+    }
+</script>
+{% endblock %}

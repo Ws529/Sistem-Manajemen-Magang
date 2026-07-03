@@ -1,0 +1,187 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Admin - SIMM</title>
+    {% tailwind_css %}
+    <link rel="icon" type="image/png" href="{% static 'images/logo_kab-bekasi.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Firebase reCAPTCHA container adjustments if needed */
+        #recaptcha-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Hapus scrollbar secara menyeluruh di halaman registrasi */
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+        
+        html, body {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+            overflow: hidden !important;
+        }
+
+        /* Sembunyikan scrollbar pada kartu form (agar tetap bisa di-scroll di perangkat mobile tanpa memunculkan scrollbar) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none !important;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+        /* Hide default browser password reveal button */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-cover bg-center h-screen flex items-center justify-center font-sans relative" style="background-image: url('{% static "images/Data_Centre_Building.jpg" %}');">
+    
+    <div class="absolute inset-0 bg-black/20"></div>
+    
+    <div class="relative bg-white/95 backdrop-blur-sm px-6 py-5 rounded-2xl shadow-2xl w-full max-w-[520px] z-10 flex flex-col overflow-hidden max-h-[95vh]">
+        
+        <div class="flex flex-col items-center mb-2">
+            <img src="{% static 'images/logo_diskominfo-kab-bekasi.png' %}" alt="Logo DISKOMINFOSANTIK" class="h-[42px] w-auto object-contain mx-auto mb-1 block">
+            <h2 class="text-[9px] font-bold text-[#0082c6] tracking-widest uppercase mb-0.5">DISKOMINFOSANTIK KAB. BEKASI</h2>
+            <h1 class="text-xl font-extrabold text-[#1a2b4c]">Registrasi Akun Admin</h1>
+        </div>
+
+        {% if messages %}
+        <div class="mb-2">
+            {% for message in messages %}
+            <div class="p-2.5 rounded-md text-xs {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% else %}bg-green-100 text-green-700 border border-green-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="registerForm" method="POST" action="{% url 'register_admin' %}" class="w-full space-y-2.5">
+            {% csrf_token %}
+            
+            {# ── Nama Lengkap ─────────────────────────────────────────────── #}
+            <div>
+                <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Nama Lengkap <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                        <i class="fa-regular fa-user text-xs"></i>
+                    </div>
+                    <input type="text" name="nama_lengkap" value="{{ form_data.nama_lengkap|default:'' }}"
+                           placeholder="Masukkan nama lengkap" required
+                           class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                </div>
+            </div>
+
+            {# ── Email ────────────────────────────────────────────────────── #}
+            <div>
+                <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Email <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                        <i class="fa-regular fa-envelope text-xs"></i>
+                    </div>
+                    <input type="email" name="email" value="{{ form_data.email|default:'' }}"
+                           placeholder="Gunakan email aktif" required
+                           class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                </div>
+            </div>
+
+            {# ── Password ──────────────────────────────────────────────────── #}
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </div>
+                        <input type="password" name="password" id="regPassword" placeholder="Minimal 8 karakter" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-10 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                        <button type="button" onclick="togglePasswordVisibility('regPassword', this)" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#a0aec0] hover:text-gray-600 focus:outline-none">
+                            <i class="fa-regular fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Konfirmasi Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                        </div>
+                        <input type="password" name="password_confirm" id="regConfirmPassword" placeholder="Ulangi password" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-10 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                        <button type="button" onclick="togglePasswordVisibility('regConfirmPassword', this)" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#a0aec0] hover:text-gray-600 focus:outline-none">
+                            <i class="fa-regular fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Google reCAPTCHA v2 Container ── #}
+            <div class="flex flex-col items-center">
+                <div class="g-recaptcha scale-90 -my-1" data-sitekey="{{ recaptcha_v2_key }}" data-callback="recaptchaSolved" data-expired-callback="recaptchaExpired"></div>
+            </div>
+
+            <button type="submit" id="btn-register" disabled class="w-full bg-[#00c3ff] hover:bg-[#00a3d9] text-white font-bold py-2.5 rounded-md transition-colors flex justify-center items-center gap-2 mt-3 opacity-50 cursor-not-allowed text-xs">
+                Daftar Akun <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="mt-3 text-[11px] text-[#a0aec0] text-center font-medium">
+            Sudah punya akun? <a href="{% url 'login_admin' %}" class="text-[#00c3ff] font-bold hover:underline">Masuk di sini</a>
+        </div>
+    </div>
+
+    <!-- Firebase App Check (background reCAPTCHA v3) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-appcheck-compat.js"></script>
+    <!-- Google reCAPTCHA v2 API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+    const firebaseConfig = {{ firebase_config|safe }};
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    // App Check v3 (Background)
+    const appCheck = firebase.appCheck();
+    appCheck.activate(
+        new firebase.appCheck.ReCaptchaV3Provider('{{ recaptcha_key }}'),
+        true
+    );
+
+    // Callbacks for Google reCAPTCHA v2
+    function recaptchaSolved() {
+        const btn = document.getElementById('btn-register');
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    function recaptchaExpired() {
+        const btn = document.getElementById('btn-register');
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+    </script>
+
+</body>
+</html>

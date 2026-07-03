@@ -1,0 +1,174 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 shrink-0 flex items-center justify-between">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">DASHBOARD PESERTA MAGANG</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Message -->
+<div class="mb-6 bg-white rounded-xl shadow-sm border-l-[5px] border-[#00BFFF] p-4 sm:p-5">
+    <h2 class="text-lg sm:text-xl font-bold text-[#1e293b]">Selamat datang, {{ request.user.first_name|default:"Peserta Magang" }}!</h2>
+    <p class="text-xs sm:text-[13px] text-slate-500 mt-1">Berikut adalah ringkasan aktivitas magang Anda.</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
+    <div class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col justify-between h-32">
+        <h3 class="text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wide">LOGBOOK DISETUJUI</h3>
+        <div class="mt-2 flex items-center gap-2">
+            <span class="text-2xl sm:text-3xl font-medium text-gray-800">{{ total_logbook }}</span>
+            <i class="fa-solid fa-circle-check text-[#00BFFF] text-xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mt-auto">Menunggu Persetujuan: {{ total_logbook_menunggu }}</p>
+    </div>
+    
+    <div class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col justify-between h-32">
+        <h3 class="text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wide">TUGAS SELESAI</h3>
+        <div class="mt-2 flex items-center gap-2">
+            <span class="text-2xl sm:text-3xl font-medium text-gray-800">{{ total_tugas_selesai }}</span>
+            <i class="fa-regular fa-circle-check text-[#00BFFF] text-xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mt-auto">Tugas Aktif: {{ total_tugas_aktif }}</p>
+    </div>
+</div>
+
+<!-- Controls Bar -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
+    <span class="text-sm font-semibold text-gray-600">Instruksi Kerja Harian</span>
+    
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <!-- Search Bar -->
+        <div class="relative flex-1 sm:flex-none">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input type="text" id="searchInput" onkeyup="searchTasks()" placeholder="Search..." class="pl-9 pr-4 py-2.5 sm:py-2 border border-gray-200 rounded-md text-sm text-gray-600 w-full sm:w-64 focus:outline-none focus:border-[#00BFFF]">
+        </div>
+        
+        <!-- Filter Dropdown -->
+        <div class="relative flex-1 sm:flex-none">
+            <select id="sortInstruksi" onchange="sortTasks()" class="appearance-none w-full px-4 py-2.5 sm:py-2 pr-8 border border-[#00BFFF] rounded-md text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:border-[#00BFFF] cursor-pointer">
+                <option value="default">Urutkan berdasarkan</option>
+                <option value="baru">Terbaru</option>
+                <option value="lama">Terlama</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </div>
+        </div>
+        
+        <!-- Add Logbook Button -->
+        <a href="{% url 'entri_logbook' %}" class="px-5 py-2.5 sm:py-2 text-center rounded-md bg-[#00BFFF] hover:bg-[#00AEEF] text-white text-sm font-semibold transition-colors shadow-sm hover:shadow-md uppercase tracking-wide shrink-0">
+            TAMBAH LOGBOOK
+        </a>
+    </div>
+</div>
+
+<!-- Table Container -->
+<div class="bg-white border border-gray-100 rounded-xl shadow-md overflow-hidden w-full">
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-left text-sm text-gray-600 min-w-[750px]">
+            <thead class="text-xs font-bold text-gray-500 border-b border-gray-100 bg-gray-50/50">
+                <tr>
+                    <th scope="col" class="px-4 py-4 w-16 text-center">Status</th>
+                    <th scope="col" class="px-4 py-4 w-36">Tanggal Instruksi</th>
+                    <th scope="col" class="px-4 py-4">Deskripsi Tugas</th>
+                    <th scope="col" class="px-4 py-4 w-40">Pembimbing</th>
+                    <th scope="col" class="px-4 py-4 w-36">Batas Waktu</th>
+                    <th scope="col" class="px-4 py-4 w-24 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelInstruksi" class="divide-y divide-gray-100">
+                {% for tugas in tugas_list %}
+                <tr class="hover:bg-gray-50/50 task-row" data-date="{{ tugas.deadline|date:'Y-m-d' }}">
+                    <td class="px-4 py-5 text-center">
+                        {% if tugas.status == 'SELESAI' %}
+                        <i class="fa-solid fa-circle-check text-green-500 text-lg"></i>
+                        {% elif tugas.deadline < today %}
+                        <i class="fa-solid fa-circle-exclamation text-red-500 text-lg" title="Terlewat"></i>
+                        {% else %}
+                        <i class="fa-regular fa-circle text-orange-500 text-lg"></i>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-5 text-gray-600 date-cell">{{ tugas.deadline|date:"d M Y" }}</td>
+                    <td class="px-4 py-5 font-medium text-gray-700 desc-cell whitespace-normal break-words">
+                        <div class="max-w-[320px] sm:max-w-[450px] leading-relaxed">{{ tugas.judul_tugas }}</div>
+                    </td>
+                    <td class="px-4 py-5 text-gray-600 pembimbing-cell">{{ tugas.pembimbing|default:"Admin" }}</td>
+                    <td class="px-4 py-5 {% if tugas.status == 'SELESAI' %}text-gray-400{% elif tugas.deadline < today %}font-semibold text-red-500{% else %}font-semibold text-orange-500{% endif %}">
+                        {{ tugas.deadline|date:"d M Y" }}
+                    </td>
+                    <td class="px-4 py-5 text-center">
+                        {% if tugas.status == 'SELESAI' %}
+                        <span class="text-green-500 text-[11px] font-bold uppercase tracking-wider">SELESAI</span>
+                        {% else %}
+                        <a href="{% url 'daftar_tugas' %}" class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#00BFFF] hover:bg-[#00AEEF] text-white text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all hover:shadow hover:-translate-y-0.5">KERJAKAN</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-10 text-center text-gray-400 text-sm">
+                        <i class="fa-solid fa-clipboard-check text-3xl mb-2 block text-gray-300"></i>
+                        Belum ada tugas dari pembimbing.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="text-center text-xs text-gray-500 py-4 border-t border-gray-100">
+        {% if tugas_list %}
+        Menampilkan {{ tugas_list|length }} tugas terbaru. <a href="{% url 'daftar_tugas' %}" class="text-[#00BFFF] hover:underline">Lihat semua tugas</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function sortTasks() {
+    const sortValue = document.getElementById('sortInstruksi').value;
+    const tbody = document.getElementById('tabelInstruksi');
+    const rows = Array.from(tbody.querySelectorAll('.task-row'));
+
+    rows.sort((a, b) => {
+        const dateA = new Date(a.getAttribute('data-date'));
+        const dateB = new Date(b.getAttribute('data-date'));
+        
+        if (sortValue === 'baru') {
+            return dateB - dateA;
+        } else if (sortValue === 'lama') {
+            return dateA - dateB;
+        } else {
+            return 0;
+        }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function searchTasks() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const tbody = document.getElementById("tabelInstruksi");
+    const tr = tbody.getElementsByClassName("task-row");
+
+    for (let i = 0; i < tr.length; i++) {
+        const descCell = tr[i].querySelector(".desc-cell");
+        const pembimbingCell = tr[i].querySelector(".pembimbing-cell");
+        
+        if (descCell || pembimbingCell) {
+            const txtValueDesc = descCell ? descCell.textContent || descCell.innerText : '';
+            const txtValuePemb = pembimbingCell ? pembimbingCell.textContent || pembimbingCell.innerText : '';
+            
+            if (txtValueDesc.toLowerCase().indexOf(filter) > -1 || txtValuePemb.toLowerCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }       
+    }
+}
+</script>
+{% endblock %}

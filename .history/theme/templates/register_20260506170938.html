@@ -1,0 +1,134 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi - SIM Magang Portofolio</title>
+    {% tailwind_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      style="background-image: url('{% static 'images/Data_Centre _Building.jpg' %}');">
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/40"></div>
+
+    <!-- Container Form -->
+    <div class="relative z-10 w-full max-w-[550px] bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mt-10 mb-10 overflow-y-auto max-h-[90vh]">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <img src="{% static 'images/logo_diskominfo-kab-bekasi.jpg' %}" alt="Logo Diskominfosantik" class="h-14 mx-auto mb-4 object-contain">
+            <p class="text-xs font-bold text-[#0891b2] uppercase tracking-wider mb-2">DISKOMINFOSANTIK KAB. BEKASI</p>
+            <h1 class="text-2xl font-bold text-[#1e3a5f]">Registrasi Akun Magang</h1>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-5 space-y-2">
+            {% for message in messages %}
+            <div class="text-sm px-4 py-2.5 rounded-lg
+                {% if message.tags == 'error' %}bg-red-50 text-red-600 border border-red-200
+                {% else %}bg-green-50 text-green-600 border border-green-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="POST" action="{% url 'register' %}" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Baris 1: Nama Lengkap -->
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">Nama Lengkap</label>
+                <div class="relative">
+                    <i class="fa-regular fa-user absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="nama_lengkap" value="{{ form_data.nama_lengkap|default:'' }}"
+                           placeholder="Masukkan nama lengkap sesuai KTP"
+                           class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                           required>
+                </div>
+            </div>
+
+            <!-- Baris 2: NIM & Asal Universitas -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">NIM</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-id-card absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="nim" value="{{ form_data.nim|default:'' }}"
+                               placeholder="Nomor Induk Mahasiswa"
+                               class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                               required>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">Asal Universitas</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-graduation-cap absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="universitas" value="{{ form_data.universitas|default:'' }}"
+                               placeholder="Nama Perguruan Tinggi"
+                               class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                               required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Baris 3: Email -->
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700">Email</label>
+                <div class="relative">
+                    <i class="fa-regular fa-envelope absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="email" name="email" value="{{ form_data.email|default:'' }}"
+                           placeholder="Gunakan email aktif"
+                           class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                           required>
+                </div>
+            </div>
+
+            <!-- Baris 4: Password & Konfirmasi -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" name="password"
+                               placeholder="Minimal 8 karakter"
+                               class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                               required minlength="8">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700">Konfirmasi Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-clock-rotate-left absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" name="password_confirm"
+                               placeholder="Ulangi password"
+                               class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] outline-none bg-white text-gray-700 placeholder-gray-400"
+                               required minlength="8">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Submit -->
+            <button type="submit"
+                    class="w-full bg-[#00c3ff] hover:bg-[#00b8f0] active:bg-[#0099cc] text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 mt-6 shadow-md">
+                Daftar Akun
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <p class="mt-6 text-center text-sm text-gray-600">
+            Sudah punya akun? <a href="{% url 'login' %}" class="text-[#00c3ff] font-semibold hover:underline">Masuk di sini</a>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,938 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 shrink-0 flex items-center justify-between bg-white">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase" id="pageMainTitle">{% if is_edit_mode %}PERBAIKAN LOGBOOK{% else %}ENTRI LOGBOOK{% endif %}</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Calendar Styles - Bulletproof Grid Layout */
+    #custom-calendar-popover {
+        position: absolute !important;
+        left: 0 !important;
+        margin-top: 8px !important;
+        background-color: #ffffff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #f3f4f6 !important;
+        padding: 20px !important;
+        z-index: 50 !important;
+        user-select: none !important;
+        width: 320px !important;
+        box-sizing: border-box !important;
+    }
+    .cal-grid-7 {
+        display: grid !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+        text-align: center;
+        gap: 4px !important;
+    }
+    .cal-weekday {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        color: #9ca3af !important;
+        text-transform: uppercase !important;
+        padding-bottom: 8px !important;
+    }
+    .cal-day-cell {
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+        margin: 2px auto !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+    }
+    .cal-day-current {
+        color: #1f2937 !important;
+        font-weight: 600 !important;
+    }
+    .cal-day-current:hover {
+        background-color: #f3f4f6 !important;
+    }
+    .cal-day-selected {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    }
+    .cal-day-outside {
+        color: #d1d5db !important;
+        font-weight: 500 !important;
+    }
+    .cal-day-outside:hover {
+        background-color: #f9fafb !important;
+    }
+    .cal-nav-btn {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #f3f4f6 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #ffffff !important;
+        cursor: pointer !important;
+        transition: background-color 0.2s !important;
+        outline: none !important;
+    }
+    .cal-nav-btn:hover {
+        background-color: #f9fafb !important;
+    }
+    .cal-header-select {
+        font-weight: 700 !important;
+        color: #1f2937 !important;
+        font-size: 14px !important;
+        border: none !important;
+        background-color: transparent !important;
+        cursor: pointer !important;
+        outline: none !important;
+        padding: 4px 8px !important;
+        border-radius: 6px !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        text-align: center !important;
+    }
+    .cal-header-select:hover {
+        background-color: #f3f4f6 !important;
+    }
+    #cal-year-dropdown-list {
+        position: absolute !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        z-index: 60 !important;
+        width: 100px !important;
+        max-height: 180px !important;
+        overflow-y: auto !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        top: 35px !important;
+        box-sizing: border-box !important;
+    }
+    .cal-year-dropdown-item {
+        padding: 8px 12px !important;
+        text-align: center !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        cursor: pointer !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+        transition: background-color 0.15s ease !important;
+    }
+    .cal-year-dropdown-item:hover {
+        background-color: #f3f4f6 !important;
+    }
+    .cal-year-dropdown-item.active {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+    }
+    .cal-year-dropdown-item:last-child {
+        border-bottom: none !important;
+    }
+
+    @media (max-width: 640px) {
+        /* Sembunyikan header tabel */
+        #dataTableRiwayat thead {
+            display: none !important;
+        }
+        /* Jadikan baris dan sel menjadi block */
+        #dataTableRiwayat, 
+        #dataTableRiwayat tbody, 
+        #dataTableRiwayat tr, 
+        #dataTableRiwayat td {
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        /* Style baris sebagai card */
+        #dataTableRiwayat tbody tr {
+            margin-bottom: 1.25rem !important;
+            border: 1px solid #f3f4f6 !important;
+            border-radius: 0.75rem !important;
+            background-color: #fff !important;
+            padding: 1.25rem !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+        /* Hilangkan hover background bawaan di mobile */
+        #dataTableRiwayat tbody tr:hover {
+            background-color: #fff !important;
+        }
+        /* Style sel tabel */
+        #dataTableRiwayat td {
+            padding: 0.5rem 0 !important;
+            text-align: left !important;
+            border: none !important;
+        }
+        /* Tampilkan label kustom sebelum isi kolom */
+        #dataTableRiwayat td:nth-child(1)::before {
+            content: "Tanggal: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+        /* Kolom status */
+        #dataTableRiwayat td:nth-child(3) {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #dataTableRiwayat td:nth-child(3)::before {
+            content: "Status: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        /* Kolom tindakan (tombol perbaiki) */
+        #dataTableRiwayat td:last-child {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #f9fafb !important;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem !important;
+    }
+
+    /* PREMIUM & RESPONSIVE DATATABLES CONTROLS (TAMPILKAN ENTRI & CARI) */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_length label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563; /* text-gray-600 */
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.5rem 2rem 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        margin: 0 0.5rem;
+        outline: none;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .dataTables_wrapper .dataTables_length select:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        flex: 1;
+        width: 100%;
+        max-width: calc(100% - 60px);
+        margin-left: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    /* Responsive Reset untuk Desktop */
+    @media (min-width: 640px) {
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            display: inline-flex;
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            width: 240px;
+            max-width: none;
+        }
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 0;
+        }
+    }
+</style>
+<div class="flex flex-col w-full max-w-5xl mx-auto gap-8 pb-10">
+
+    <!-- Top Banner & Tombol Switch -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-[#E6F7FF] flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-file-lines text-[#00BFFF] text-lg"></i>
+            </div>
+            <div>
+                <h3 id="formTitle" class="font-bold text-gray-800 text-[15px]">{% if is_edit_mode %}Form Revisi Logbook{% else %}Form Laporan Aktivitas{% endif %}</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Catat pekerjaan dan progres harian Anda di sini.</p>
+            </div>
+        </div>
+        
+        <!-- Tombol Switch: Muncul di luar form saat ada ID revisi -->
+        {% if is_edit_mode %}
+        <button type="button" onclick="switchToNewMode()" id="btnSwitchMode" class="bg-white border-2 border-[#00BFFF] text-[#00BFFF] font-semibold text-sm px-5 py-2.5 rounded-md hover:bg-[#E6F7FF] transition-colors shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+            <i class="fa-solid fa-file-circle-plus"></i> Tambah Logbook Baru
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-4 sm:p-6 w-full">
+        
+        <!-- Catatan Pembimbing Alert Box (Mode Revisi) -->
+        {% if is_edit_mode and logbook.catatan_pembimbing %}
+        <div id="alertCatatan" class="mb-6 bg-[#FFF0F0] border border-[#FFD6D6] rounded-xl p-5 shadow-sm w-full transition-all duration-300">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-bold text-red-800 mb-1">Catatan Pembimbing:</h4>
+                    <p class="text-sm text-red-700 leading-relaxed mb-3">
+                        {{ logbook.catatan_pembimbing }}
+                    </p>
+                    {% if logbook.file_pembimbing %}
+                    <div class="mt-2 pt-2 border-t border-red-200/50">
+                        <p class="text-xs text-red-800 font-bold mb-1.5"><i class="fa-solid fa-paperclip mr-1"></i> Berkas Lampiran Umpan Balik:</p>
+                        <a href="{{ logbook.file_pembimbing.url }}" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs font-semibold transition-colors shadow-sm">
+                            <i class="fa-solid fa-download"></i> Unduh Lampiran Pembimbing
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <form id="logbookForm" method="POST" action="{% if is_edit_mode %}?id={{ logbook.id }}{% else %}{% url 'entri_logbook' %}{% endif %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="flex flex-col gap-6 w-full">
+                <!-- Judul Logbook -->
+                <div class="w-full">
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">JUDUL LOGBOOK <span class="text-red-500">*</span></label>
+                    {{ form.judul }}
+                    {% if form.judul.errors %}
+                        <p class="text-xs text-red-500 mt-1">{{ form.judul.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                    <!-- Tanggal -->
+                    <div class="w-full relative" id="cal-parent-container">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">TANGGAL AKTIVITAS <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            {{ form.tanggal }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="fa-regular fa-calendar"></i>
+                            </div>
+                        </div>
+                        {% if form.tanggal.errors %}
+                            <p class="text-xs text-red-500 mt-1">{{ form.tanggal.errors.0 }}</p>
+                        {% endif %}
+
+                         <!-- Custom Popover Calendar (styled like the attached image) -->
+                        <div id="custom-calendar-popover" class="hidden">
+                             <!-- Header -->
+                            <div style="display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 16px !important;">
+                                <button type="button" id="cal-prev-btn" class="cal-nav-btn">
+                                    <i class="fa-solid fa-chevron-left text-gray-600 text-xs"></i>
+                                </button>
+                                <div style="display: flex !important; align-items: center !important; gap: 6px !important; position: relative !important;">
+                                    <select id="cal-month-select" class="cal-header-select"></select>
+                                    <div style="position: relative !important; display: inline-block !important;">
+                                        <button type="button" id="cal-year-lbl" class="cal-header-select" style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;">
+                                            <span>2026</span> <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+                                        </button>
+                                        <div id="cal-year-dropdown-list" class="hidden"></div>
+                                    </div>
+                                </div>
+                                <button type="button" id="cal-next-btn" class="cal-nav-btn">
+                                    <i class="fa-solid fa-chevron-right text-gray-600 text-xs"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Weekdays -->
+                            <div class="cal-grid-7 mb-2">
+                                <div class="cal-weekday">Min</div>
+                                <div class="cal-weekday">Sen</div>
+                                <div class="cal-weekday">Sel</div>
+                                <div class="cal-weekday">Rab</div>
+                                <div class="cal-weekday">Kam</div>
+                                <div class="cal-weekday">Jum</div>
+                                <div class="cal-weekday">Sab</div>
+                            </div>
+                            
+                            <!-- Days Grid -->
+                            <div id="cal-days-grid" class="cal-grid-7">
+                                <!-- Days injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Keterangan -->
+                    <div class="w-full">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">KETERANGAN <span class="text-red-500">*</span></label>
+                        {{ form.keterangan }}
+                        {% if form.keterangan.errors %}
+                            <p class="text-xs text-red-500 mt-1">{{ form.keterangan.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Detail Pekerjaan -->
+                <div class="w-full">
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">DETAIL PEKERJAAN / AKTIVITAS <span class="text-red-500">*</span></label>
+                    {{ form.detail_pekerjaan }}
+                    {% if form.detail_pekerjaan.errors %}
+                        <p class="text-xs text-red-500 mt-1">{{ form.detail_pekerjaan.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Tautan -->
+                <div class="w-full">
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">TAUTAN PENDUKUNG (OPSIONAL)</label>
+                    {{ form.tautan_pendukung }}
+                    {% if form.tautan_pendukung.errors %}
+                        <p class="text-xs text-red-500 mt-1">{{ form.tautan_pendukung.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Lampiran -->
+                <div class="flex flex-col gap-6 sm:flex-row w-full">
+                    <div class="flex-1 w-full">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">UPLOAD GAMBAR (OPSIONAL - MAKS. 10MB)</label>
+                        <div class="relative">
+                            <!-- Hidden original Django file input -->
+                            <div class="hidden">
+                                {{ form.lampiran_gambar }}
+                            </div>
+                            <!-- Custom Button UI -->
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="document.getElementById('id_lampiran_gambar').click()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-[#00BFFF] transition-all text-xs font-bold text-gray-600 cursor-pointer shadow-sm focus:outline-none">
+                                    <i class="fa-solid fa-image text-gray-400"></i> Pilih Gambar
+                                </button>
+                                <span id="file-name-gambar" class="text-xs text-gray-500 truncate max-w-[200px] font-medium">Belum ada gambar terpilih</span>
+                            </div>
+                        </div>
+                        {% if is_edit_mode and logbook.keterangan_file %}
+                            <p class="text-[10px] text-red-500 font-bold mt-1"><i class="fa-solid fa-triangle-exclamation"></i> Keterangan: {{ logbook.keterangan_file }}</p>
+                        {% endif %}
+                        {% if is_edit_mode and logbook.lampiran_gambar %}
+                            <p class="file-current-status text-[11px] text-gray-500 mt-1">Saat ini: <a href="{{ logbook.lampiran_gambar.url }}" class="text-[#00BFFF] hover:underline" target="_blank">{{ logbook.lampiran_gambar.name }}</a></p>
+                        {% endif %}
+                        {% if form.lampiran_gambar.errors %}
+                            <p class="text-xs text-red-500 mt-1">{{ form.lampiran_gambar.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">UPLOAD DOKUMEN (OPSIONAL - MAKS. 10MB)</label>
+                        <div class="relative">
+                            <!-- Hidden original Django file input -->
+                            <div class="hidden">
+                                {{ form.lampiran_dokumen }}
+                            </div>
+                            <!-- Custom Button UI -->
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="document.getElementById('id_lampiran_dokumen').click()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-[#00BFFF] transition-all text-xs font-bold text-gray-600 cursor-pointer shadow-sm focus:outline-none">
+                                    <i class="fa-solid fa-file-pdf text-gray-400"></i> Pilih Dokumen
+                                </button>
+                                <span id="file-name-dokumen" class="text-xs text-gray-500 truncate max-w-[200px] font-medium">Belum ada dokumen terpilih</span>
+                            </div>
+                        </div>
+                        {% if is_edit_mode and logbook.keterangan_file %}
+                            <p class="text-[10px] text-red-500 font-bold mt-1"><i class="fa-solid fa-triangle-exclamation"></i> Keterangan: {{ logbook.keterangan_file }}</p>
+                        {% endif %}
+                        {% if is_edit_mode and logbook.lampiran_dokumen %}
+                            <p class="file-current-status text-[11px] text-gray-500 mt-1">Saat ini: <a href="{{ logbook.lampiran_dokumen.url }}" class="text-[#00BFFF] hover:underline" target="_blank">{{ logbook.lampiran_dokumen.name }}</a></p>
+                        {% endif %}
+                        {% if form.lampiran_dokumen.errors %}
+                            <p class="text-xs text-red-500 mt-1">{{ form.lampiran_dokumen.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end pt-6 mt-4 border-t border-gray-50 w-full gap-3">
+                    {% if is_edit_mode %}
+                        <a id="cancelBtn" href="{% url 'entri_logbook' %}" class="px-6 py-2.5 border border-gray-200 bg-white text-gray-600 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors">
+                            Batal
+                        </a>
+                        <button id="submitBtn" type="submit" class="bg-[#00BFFF] hover:bg-[#00AEEF] text-white font-semibold text-sm px-8 py-2.5 rounded-md shadow-sm flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> PERBARUI LOGBOOK
+                        </button>
+                    {% else %}
+                        <button id="submitBtn" type="submit" class="bg-[#00BFFF] hover:bg-[#00AEEF] text-white font-semibold text-sm px-8 py-2.5 rounded-md shadow-sm flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-plus"></i> TAMBAH LOGBOOK
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- History Section (Vertical Layout) -->
+    <div class="w-full mt-4">
+        <div class="border border-gray-200 rounded-lg bg-white overflow-hidden w-full">
+            <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between bg-gray-50/30 gap-4">
+                <h4 class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">RIWAYAT AKTIVITAS ANDA</h4>
+            </div>
+            <div class="p-5 w-full overflow-x-auto">
+                <table id="dataTableRiwayat" class="w-full text-left text-sm text-gray-600 sm:min-w-[600px]">
+                    <thead class="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-100">
+                        <tr>
+                            <th scope="col" class="px-4 py-3">TANGGAL</th>
+                            <th scope="col" class="px-4 py-3">JUDUL & DESKRIPSI</th>
+                            <th scope="col" class="px-4 py-3 text-center">STATUS</th>
+                            <th scope="col" class="px-4 py-3 text-right">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lb in logbook_list %}
+                        <tr class="border-b border-gray-50 hover:bg-gray-50">
+                            <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                                <i class="fa-regular fa-calendar text-gray-400 mr-1"></i> {{ lb.tanggal|date:"d M Y" }}
+                            </td>
+                            <td class="px-4 py-3 whitespace-normal break-words">
+                                <div class="max-w-[280px] sm:max-w-[400px]">
+                                    <p class="text-sm font-bold text-gray-800">{{ lb.judul }}</p>
+                                    <p class="text-[11px] text-gray-500 mt-1 line-clamp-2 leading-relaxed">{{ lb.detail_pekerjaan }}</p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                {% if lb.status == 'REVISI' %}
+                                <span class="bg-red-100 text-red-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">REVISI</span>
+                                {% elif lb.status == 'MENUNGGU' %}
+                                <span class="bg-orange-100 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">MENUNGGU</span>
+                                {% else %}
+                                <span class="bg-green-100 text-green-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">DISETUJUI</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                {% if lb.status == 'REVISI' %}
+                                <a href="?id={{ lb.id }}" class="text-[#00BFFF] text-xs font-semibold hover:underline"><i class="fa-solid fa-pen-to-square"></i> PERBAIKI</a>
+                                {% else %}
+                                <span class="text-gray-400 text-xs">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchToNewMode() {
+        // 1. Sembunyikan elemen mode revisi
+        const alertBox = document.getElementById('alertCatatan');
+        if (alertBox) alertBox.style.display = 'none';
+        
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        
+        const switchBtn = document.getElementById('btnSwitchMode');
+        if (switchBtn) switchBtn.style.display = 'none';
+        
+        document.querySelectorAll('.file-current-status').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Sembunyikan popover kalender jika terbuka
+        const popover = document.getElementById('custom-calendar-popover');
+        if (popover) popover.classList.add('hidden');
+
+        // 2. Kosongkan semua input form
+        const formInputs = document.querySelectorAll('#logbookForm input[type="text"], #logbookForm input[type="url"], #logbookForm input[type="file"], #logbookForm textarea');
+        formInputs.forEach(input => {
+            input.value = '';
+        });
+        
+        // Reset file name spans
+        const fileNameGambar = document.getElementById('file-name-gambar');
+        if (fileNameGambar) {
+            fileNameGambar.textContent = 'Belum ada gambar terpilih';
+            fileNameGambar.classList.remove('text-gray-800', 'font-semibold');
+            fileNameGambar.classList.add('text-gray-500');
+        }
+        const fileNameDokumen = document.getElementById('file-name-dokumen');
+        if (fileNameDokumen) {
+            fileNameDokumen.textContent = 'Belum ada dokumen terpilih';
+            fileNameDokumen.classList.remove('text-gray-800', 'font-semibold');
+            fileNameDokumen.classList.add('text-gray-500');
+        }
+
+        // 3. Ubah Action URL Form ke rute tanpa ID
+        const form = document.getElementById('logbookForm');
+        if (form) form.action = "{% url 'entri_logbook' %}";
+
+        // 4. Ubah Teks/Label antarmuka
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> TAMBAH LOGBOOK';
+        
+        const formTitle = document.getElementById('formTitle');
+        if (formTitle) formTitle.innerText = 'Form Laporan Aktivitas (Baru)';
+        
+        const pageTitle = document.getElementById('pageMainTitle');
+        if (pageTitle) pageTitle.innerText = 'ENTRI LOGBOOK';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- CUSTOM CALENDAR LOGIC ---
+        const dateInput = document.getElementById('id_tanggal');
+        const popover = document.getElementById('custom-calendar-popover');
+        const monthSelect = document.getElementById('cal-month-select');
+        const yearLbl = document.getElementById('cal-year-lbl');
+        const yearDropdown = document.getElementById('cal-year-dropdown-list');
+        
+        let calCurrentYear, calCurrentMonth;
+        const monthNamesId = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        
+        // Populate Month Select
+        monthNamesId.forEach((name, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.textContent = name;
+            monthSelect.appendChild(opt);
+        });
+        
+        // Populate Year Custom Dropdown
+        function initYearDropdown() {
+            yearDropdown.innerHTML = '';
+            for (let y = 2015; y <= 2045; y++) {
+                const item = document.createElement('div');
+                item.textContent = y;
+                item.className = 'cal-year-dropdown-item';
+                if (y === calCurrentYear) {
+                    item.classList.add('active');
+                }
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    calCurrentYear = y;
+                    yearDropdown.classList.add('hidden');
+                    renderCalendar(calCurrentYear, calCurrentMonth);
+                });
+                yearDropdown.appendChild(item);
+            }
+        }
+        
+        // Toggle Year Dropdown
+        if (yearLbl) {
+            yearLbl.addEventListener('click', function(e) {
+                e.stopPropagation();
+                yearDropdown.classList.toggle('hidden');
+                
+                // Auto scroll to active year
+                if (!yearDropdown.classList.contains('hidden')) {
+                    const activeItem = yearDropdown.querySelector('.cal-year-dropdown-item.active');
+                    if (activeItem) {
+                        yearDropdown.scrollTop = activeItem.offsetTop - (yearDropdown.clientHeight / 2) + (activeItem.clientHeight / 2);
+                    }
+                }
+            });
+        }
+        
+        // Add Change Event Listeners to Inputs/Selects
+        monthSelect.addEventListener('change', function() {
+            calCurrentMonth = parseInt(this.value);
+            renderCalendar(calCurrentYear, calCurrentMonth);
+        });
+        
+        function renderCalendar(year, month) {
+            const firstDayIndex = new Date(year, month, 1).getDay(); // Day of week of 1st day (0 = Sun, 6 = Sat)
+            const totalDays = new Date(year, month + 1, 0).getDate(); // Days in current month
+            const prevTotalDays = new Date(year, month, 0).getDate(); // Days in previous month
+            
+            // Sync values and label
+            monthSelect.value = month;
+            if (yearLbl) {
+                yearLbl.querySelector('span').textContent = year;
+            }
+            
+            // Update active status in dropdown
+            const items = yearDropdown.querySelectorAll('.cal-year-dropdown-item');
+            items.forEach(item => {
+                if (parseInt(item.textContent) === year) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            const grid = document.getElementById('cal-days-grid');
+            grid.innerHTML = '';
+            
+            // 1. Prev month days
+            for (let i = firstDayIndex - 1; i >= 0; i--) {
+                const dayNum = prevTotalDays - i;
+                const cell = createDayCell(dayNum, 'prev', year, month, dayNum);
+                grid.appendChild(cell);
+            }
+            
+            // 2. Current month days
+            for (let i = 1; i <= totalDays; i++) {
+                const cell = createDayCell(i, 'current', year, month, i);
+                grid.appendChild(cell);
+            }
+            
+            // 3. Next month days
+            const totalCells = firstDayIndex + totalDays;
+            const nextDaysCount = 42 - totalCells;
+            for (let i = 1; i <= nextDaysCount; i++) {
+                const cell = createDayCell(i, 'next', year, month, i);
+                grid.appendChild(cell);
+            }
+        }
+        
+        function createDayCell(dayNum, type, year, month, actualDay) {
+            const cell = document.createElement('div');
+            cell.textContent = dayNum;
+            cell.className = 'cal-day-cell';
+            
+            // Determine the date for this cell
+            let targetYear = year;
+            let targetMonth = month;
+            if (type === 'prev') {
+                targetMonth = month - 1;
+                if (targetMonth < 0) {
+                    targetMonth = 11;
+                    targetYear = year - 1;
+                }
+            } else if (type === 'next') {
+                targetMonth = month + 1;
+                if (targetMonth > 11) {
+                    targetMonth = 0;
+                    targetYear = year + 1;
+                }
+            }
+            
+            // Format target date as YYYY-MM-DD
+            const yyyy = targetYear;
+            const mm = String(targetMonth + 1).padStart(2, '0');
+            const dd = String(actualDay).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            
+            // Check if this date is the selected date
+            const selectedDateStr = dateInput.value;
+            
+            if (type === 'current') {
+                if (selectedDateStr === dateStr) {
+                    cell.classList.add('cal-day-selected');
+                } else {
+                    cell.classList.add('cal-day-current');
+                }
+            } else {
+                // Prev or Next month day
+                cell.classList.add('cal-day-outside');
+            }
+            
+            cell.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dateInput.value = dateStr;
+                
+                // Close calendar
+                popover.classList.add('hidden');
+                
+                // Re-render to update selected state
+                renderCalendar(year, month);
+            });
+            
+            return cell;
+        }
+        
+        if (dateInput) {
+            dateInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                popover.classList.toggle('hidden');
+                
+                if (!popover.classList.contains('hidden')) {
+                    // Parse current input value or use today's date
+                    let initialDate = new Date();
+                    if (dateInput.value) {
+                        const parts = dateInput.value.split('-');
+                        if (parts.length === 3) {
+                            initialDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                        }
+                    }
+                    calCurrentYear = initialDate.getFullYear();
+                    calCurrentMonth = initialDate.getMonth();
+                    initYearDropdown();
+                    renderCalendar(calCurrentYear, calCurrentMonth);
+                }
+            });
+        }
+        
+        // Prev and Next button click listeners
+        const prevBtn = document.getElementById('cal-prev-btn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                calCurrentMonth--;
+                if (calCurrentMonth < 0) {
+                    calCurrentMonth = 11;
+                    calCurrentYear--;
+                }
+                renderCalendar(calCurrentYear, calCurrentMonth);
+            });
+        }
+        
+        const nextBtn = document.getElementById('cal-next-btn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                calCurrentMonth++;
+                if (calCurrentMonth > 11) {
+                    calCurrentMonth = 0;
+                    calCurrentYear++;
+                }
+                renderCalendar(calCurrentYear, calCurrentMonth);
+            });
+        }
+        
+        // Click outside closes popover
+        document.addEventListener('click', function(e) {
+            if (popover && !popover.contains(e.target) && e.target !== dateInput) {
+                popover.classList.add('hidden');
+            }
+            if (yearDropdown && !yearDropdown.contains(e.target) && e.target !== yearLbl) {
+                yearDropdown.classList.add('hidden');
+            }
+        });
+
+        // --- ATTACHMENT FILE SIZE CHECK ---
+        const inputGambar = document.getElementById('id_lampiran_gambar');
+        const inputDokumen = document.getElementById('id_lampiran_dokumen');
+        
+        let maxSizeBytes = 10 * 1024 * 1024; // Default 10MB
+        const limitText = "{{ logbook.keterangan_file|default_if_none:''|escapejs }}";
+        
+        if (limitText) {
+            const match = limitText.match(/(\d+)\s*(?:mb|megabytes)/i);
+            if (match) {
+                const parsedMB = parseInt(match[1]);
+                maxSizeBytes = parsedMB * 1024 * 1024;
+            }
+        }
+
+        function checkFileSize(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > maxSizeBytes) {
+                    const maxMB = (maxSizeBytes / (1024 * 1024)).toFixed(0);
+                    alert(`Ukuran berkas "${file.name}" terlalu besar! Maksimal ukuran berkas yang diperbolehkan adalah ${maxMB}MB.`);
+                    input.value = ''; // Reset input
+                    
+                    // Reset the corresponding visual span text
+                    const inputId = input.id;
+                    if (inputId === 'id_lampiran_gambar') {
+                        const span = document.getElementById('file-name-gambar');
+                        if (span) {
+                            span.textContent = 'Belum ada gambar terpilih';
+                            span.classList.remove('text-gray-800', 'font-semibold');
+                            span.classList.add('text-gray-500');
+                        }
+                    } else if (inputId === 'id_lampiran_dokumen') {
+                        const span = document.getElementById('file-name-dokumen');
+                        if (span) {
+                            span.textContent = 'Belum ada dokumen terpilih';
+                            span.classList.remove('text-gray-800', 'font-semibold');
+                            span.classList.add('text-gray-500');
+                        }
+                    }
+                }
+            }
+        }
+
+        if (inputGambar) {
+            inputGambar.addEventListener('change', function() {
+                checkFileSize(this);
+                const span = document.getElementById('file-name-gambar');
+                if (span) {
+                    if (this.files && this.files.length > 0) {
+                        span.textContent = this.files[0].name;
+                        span.classList.remove('text-gray-500');
+                        span.classList.add('text-gray-800', 'font-semibold');
+                    } else {
+                        span.textContent = 'Belum ada gambar terpilih';
+                        span.classList.remove('text-gray-800', 'font-semibold');
+                        span.classList.add('text-gray-500');
+                    }
+                }
+            });
+        }
+
+        if (inputDokumen) {
+            inputDokumen.addEventListener('change', function() {
+                checkFileSize(this);
+                const span = document.getElementById('file-name-dokumen');
+                if (span) {
+                    if (this.files && this.files.length > 0) {
+                        span.textContent = this.files[0].name;
+                        span.classList.remove('text-gray-500');
+                        span.classList.add('text-gray-800', 'font-semibold');
+                    } else {
+                        span.textContent = 'Belum ada dokumen terpilih';
+                        span.classList.remove('text-gray-800', 'font-semibold');
+                        span.classList.add('text-gray-500');
+                    }
+                }
+            });
+        }
+        
+        $('#dataTableRiwayat').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50],
+            ordering: false
+        });
+    });
+</script>
+{% endblock %}

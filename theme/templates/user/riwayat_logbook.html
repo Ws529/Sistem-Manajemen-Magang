@@ -1,0 +1,305 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 shrink-0 flex items-center justify-between bg-white">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">RIWAYAT LOGBOOK</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<style>
+    @media (max-width: 640px) {
+        /* Sembunyikan header tabel */
+        #dataTableRiwayatLengkap thead {
+            display: none !important;
+        }
+        /* Jadikan baris dan sel menjadi block */
+        #dataTableRiwayatLengkap, 
+        #dataTableRiwayatLengkap tbody, 
+        #dataTableRiwayatLengkap tr, 
+        #dataTableRiwayatLengkap td {
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        /* Style baris sebagai card */
+        #dataTableRiwayatLengkap tbody tr {
+            margin-bottom: 1.25rem !important;
+            border: 1px solid #f3f4f6 !important;
+            border-radius: 0.75rem !important;
+            background-color: #fff !important;
+            padding: 1.25rem !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+        /* Hilangkan hover background bawaan di mobile */
+        #dataTableRiwayatLengkap tbody tr:hover {
+            background-color: #fff !important;
+        }
+        /* Style sel tabel */
+        #dataTableRiwayatLengkap td {
+            padding: 0.5rem 0 !important;
+            text-align: left !important;
+            border: none !important;
+        }
+        /* No Urut */
+        #dataTableRiwayatLengkap td:nth-child(1) {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 11px;
+            font-weight: 700;
+            color: #9ca3af;
+        }
+        #dataTableRiwayatLengkap td:nth-child(1)::before {
+            content: "Logbook No. ";
+            text-transform: uppercase;
+        }
+        /* Tanggal */
+        #dataTableRiwayatLengkap td:nth-child(2)::before {
+            content: "Tanggal: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+        /* Kegiatan */
+        #dataTableRiwayatLengkap td:nth-child(3)::before {
+            content: "Kegiatan: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+        /* Uraian Kegiatan */
+        #dataTableRiwayatLengkap td:nth-child(4)::before {
+            content: "Uraian: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        /* Status */
+        #dataTableRiwayatLengkap td:nth-child(5) {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #dataTableRiwayatLengkap td:nth-child(5)::before {
+            content: "Status: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+    }
+
+    /* PREMIUM & RESPONSIVE DATATABLES CONTROLS */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_length label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.5rem 2rem 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        margin: 0 0.5rem;
+        outline: none;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .dataTables_wrapper .dataTables_length select:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        flex: 1;
+        width: 100%;
+        max-width: calc(100% - 60px);
+        margin-left: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    /* Responsive Reset untuk Desktop */
+    @media (min-width: 640px) {
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            display: inline-flex;
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            width: 240px;
+            max-width: none;
+        }
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 0;
+        }
+    }
+</style>
+<div class="flex flex-col w-full max-w-6xl mx-auto gap-8 pb-10">
+
+    <!-- Header & Tombol Export -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-[#E6F7FF] flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-list-check text-[#00BFFF] text-lg"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-800 text-[15px]">Riwayat Logbook Anda</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Daftar lengkap seluruh riwayat aktivitas yang telah Anda laporkan.</p>
+            </div>
+        </div>
+        
+        <a href="{% url 'ekspor_logbook_word' %}" class="bg-[#00BFFF] border-2 border-[#00BFFF] text-white font-semibold text-sm px-5 py-2.5 rounded-md hover:bg-[#00AEEF] hover:border-[#00AEEF] transition-colors shadow-sm flex items-center gap-2">
+            <i class="fa-regular fa-file-word text-lg"></i> Export ke Word
+        </a>
+    </div>
+
+    <!-- Tabel Data -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden">
+        <div class="overflow-x-auto">
+            <table id="dataTableRiwayatLengkap" class="w-full text-left border-collapse sm:min-w-[600px]">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[11px] uppercase tracking-wide">
+                        <th class="py-4 px-6 font-bold w-16 text-center">No</th>
+                        <th class="py-4 px-6 font-bold w-40 whitespace-nowrap">Tanggal / Waktu</th>
+                        <th class="py-4 px-6 font-bold w-1/4">Kegiatan</th>
+                        <th class="py-4 px-6 font-bold w-auto">Uraian Kegiatan</th>
+                        <th class="py-4 px-6 font-bold w-32 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700">
+                    {% for log in logbooks %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 text-center font-medium text-gray-500">{{ forloop.counter }}</td>
+                        <td class="py-4 px-6 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-days text-gray-400"></i>
+                                <span>{{ log.tanggal|date:"d M Y" }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 whitespace-normal break-words">
+                            <div class="max-w-[200px] sm:max-w-[250px] font-semibold text-gray-800">{{ log.judul }}</div>
+                        </td>
+                        <td class="py-4 px-6 whitespace-normal break-words">
+                            <div class="max-w-[300px] sm:max-w-[450px] text-gray-600 line-clamp-3 leading-relaxed">{{ log.detail_pekerjaan }}</div>
+                        </td>
+                        <td class="py-4 px-6 text-center" data-search="{{ log.status }}">
+                            {% if log.status == 'REVISI' %}
+                            <span class="bg-red-100 text-red-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">REVISI</span>
+                            {% elif log.status == 'MENUNGGU' %}
+                            <span class="bg-orange-100 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">MENUNGGU</span>
+                            {% else %}
+                            <span class="bg-green-100 text-green-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">DISETUJUI</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <i class="fa-solid fa-folder-open text-3xl text-gray-300"></i>
+                                <p class="text-sm">Belum ada logbook yang diisi.</p>
+                                <a href="{% url 'entri_logbook' %}" class="mt-2 text-[#00BFFF] hover:underline font-semibold text-sm">Mulai isi logbook pertama Anda</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    var dataTableRiwayat;
+
+    $(document).ready(function() {
+        dataTableRiwayat = $('#dataTableRiwayatLengkap').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 px-6 pt-5"lf>rt<"flex flex-col md:flex-row justify-between items-center my-4 px-6"ip>',
+            pageLength: 10,
+            initComplete: function(settings, json) {
+                var filterHtml = `
+                    <div class="relative inline-block ml-0 md:ml-3 mt-2 md:mt-0">
+                        <select id="filterStatus" class="appearance-none px-4 py-1.5 pr-8 border border-[#00BFFF] rounded-md text-xs text-gray-600 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:border-[#00BFFF] cursor-pointer h-8">
+                            <option value="">Semua Status</option>
+                            <option value="MENUNGGU">Menunggu</option>
+                            <option value="REVISI">Perlu Revisi</option>
+                            <option value="DISETUJUI">Disetujui</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#00BFFF]">
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </div>
+                    </div>
+                `;
+                var filterContainer = $('.dataTables_filter');
+                if (filterContainer.length) {
+                    filterContainer.addClass('flex items-center gap-2 flex-wrap').append(filterHtml);
+                    
+                    $('#filterStatus').on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        dataTableRiwayat.column(4).search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="mb-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">DOKUMEN SERTIFIKAT</h2>
+        <p class="text-xs text-gray-500 mt-1">Kelola dan unggah sertifikat kelulusan peserta magang.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+        <div class="relative w-full sm:w-64 border bg-white rounded flex items-center overflow-hidden h-9 shadow-sm">
+            <span class="pl-3 text-gray-400">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </span>
+            <input type="text" id="searchSertifikat" onkeyup="filterSertifikat()" placeholder="Cari nama atau no. sertifikat..." class="w-full h-full border-none focus:ring-0 text-sm px-2 outline-none">
+        </div>
+        
+        <button onclick="openModal()" class="bg-[#00bfff] hover:bg-[#00a3d9] text-white px-4 h-9 rounded text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors w-full sm:w-auto shrink-0">
+            <i class="fa-solid fa-cloud-arrow-up"></i> UNGGAH SERTIFIKAT
+        </button>
+    </div>
+</div>
+
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg p-4 sm:p-6">
+    <div class="w-full overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-600 min-w-[800px]">
+            <thead class="text-xs text-gray-400 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">PESERTA MAGANG</th>
+                    <th scope="col" class="px-6 py-4">NOMOR SERTIFIKAT</th>
+                    <th scope="col" class="px-6 py-4">TANGGAL TERBIT</th>
+                    <th scope="col" class="px-6 py-4 text-center">FILE DOKUMEN</th>
+                    <th scope="col" class="px-6 py-4 text-right">AKSI</th>
+                </tr>
+            </thead>
+            <tbody id="sertifikatTableBody">
+                {% for sertifikat in sertifikat_list %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 s-row" data-search="{{ sertifikat.user.first_name|lower }} {{ sertifikat.nomor_sertifikat|lower }}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#E6F7FF] flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-user text-[#00bfff] text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-xs">{{ sertifikat.user.first_name }}</h4>
+                                <p class="text-[10px] text-gray-500 mt-0.5">{{ sertifikat.user.universitas|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="font-mono text-xs text-gray-600 font-medium">{{ sertifikat.nomor_sertifikat }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-500">
+                        {{ sertifikat.tanggal_terbit|date:"d M Y" }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if sertifikat.file_sertifikat %}
+                        <a href="{{ sertifikat.file_sertifikat.url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-colors">
+                            <i class="fa-solid fa-file-pdf"></i> Lihat PDF
+                        </a>
+                        {% else %}
+                        <span class="text-xs text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <form method="POST" action="{% url 'admin_sertifikat' %}" onsubmit="return confirm('Hapus sertifikat ini?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="sertifikat_id" value="{{ sertifikat.id }}">
+                            <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">Belum ada sertifikat yang diunggah.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Unggah Sertifikat -->
+<div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-md shadow-lg w-full max-w-md overflow-hidden mx-auto">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#f8fafc]">
+            <h3 class="text-sm font-semibold text-gray-700">Unggah Sertifikat Kelulusan</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="p-6">
+            <form method="POST" action="{% url 'admin_sertifikat' %}" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Pilih Peserta Magang <span class="text-red-500">*</span></label>
+                    <select name="mahasiswa_id" required class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff]">
+                        <option value="">-- Pilih Mahasiswa --</option>
+                        {% for m in mahasiswa_list %}
+                        <option value="{{ m.id }}">{{ m.first_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">Nomor Sertifikat <span class="text-red-500">*</span></label>
+                    <input type="text" name="nomor_sertifikat" required placeholder="Contoh: SERT/MAGANG/2026/001" class="w-full border border-gray-200 rounded text-sm px-3 py-2 font-mono text-gray-700 focus:outline-none focus:border-[#00bfff]">
+                </div>
+                
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1.5">File Sertifikat (PDF) <span class="text-red-500">*</span></label>
+                    <input type="file" name="file_sertifikat" required accept=".pdf" class="w-full border border-gray-200 rounded text-sm px-3 py-2 text-gray-700 focus:outline-none focus:border-[#00bfff] file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#E6F7FF] file:text-[#00BFFF] hover:file:bg-[#ccf0ff]">
+                    <p class="text-[10px] text-gray-400 mt-1.5">Format yang diizinkan: PDF. Maksimal 5MB.</p>
+                </div>
+                
+                <div class="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
+                    <button type="button" onclick="closeModal()" class="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        BATALKAN
+                    </button>
+                    <button type="submit" class="bg-[#00bfff] hover:bg-[#00a3d9] text-white px-5 py-2 rounded text-[11px] font-bold tracking-wide transition-colors shadow-sm">
+                        SIMPAN & UNGGAH
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        const modal = document.getElementById('addModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    function closeModal() {
+        const modal = document.getElementById('addModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function filterSertifikat() {
+        const searchVal = document.getElementById('searchSertifikat').value.toLowerCase();
+        const rows = document.querySelectorAll('#sertifikatTableBody .s-row');
+        
+        rows.forEach(row => {
+            const searchData = row.getAttribute('data-search') || '';
+            if (searchData.includes(searchVal)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

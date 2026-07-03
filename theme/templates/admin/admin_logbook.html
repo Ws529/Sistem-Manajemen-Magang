@@ -1,0 +1,230 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">LOGBOOK PESERTA MAGANG</h2>
+        <p class="text-xs text-gray-500 mt-1">Tinjau laporan harian peserta dan berikan umpan balik.</p>
+    </div>
+</div>
+
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg p-4 sm:p-6">
+    <div class="w-full overflow-x-auto">
+        <table id="dataTable" class="w-full text-left text-sm text-gray-600 min-w-[800px]">
+            <thead class="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">PESERTA</th>
+                    <th scope="col" class="px-6 py-4">JUDUL & AKTIVITAS</th>
+                    <th scope="col" class="px-6 py-4">STATUS</th>
+                    <th scope="col" class="px-6 py-4 text-right">TINDAKAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for logbook in logbooks %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50" id="row-logbook-{{ logbook.id }}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-gray-100 shadow-sm bg-[#E6F7FF]">
+                                {% if logbook.user.avatar %}
+                                <img src="{{ logbook.user.avatar.url }}" alt="Profile" class="w-full h-full object-cover">
+                                {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ logbook.user.get_full_name|default:logbook.user.username|urlencode }}&background=00c3ff&color=fff&size=150" alt="Profile" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-bold text-gray-800">{{ logbook.user.first_name }}</h3>
+                                <p class="text-[10px] text-gray-500">{{ logbook.user.nim|default:"NIM Tidak Ada" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-normal break-words">
+                        <div class="max-w-[300px]">
+                            <p class="text-xs font-bold text-gray-800">{{ logbook.judul }}</p>
+                            <p class="text-[10px] text-gray-500 mt-0.5"><i class="fa-regular fa-calendar mr-1"></i> {{ logbook.tanggal|date:"d M Y" }} &bull; {{ logbook.get_keterangan_display }}</p>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4" data-search="{{ logbook.status }}">
+                        {% if logbook.status == 'MENUNGGU' %}
+                        <span class="bg-orange-100 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">MENUNGGU</span>
+                        {% elif logbook.status == 'REVISI' %}
+                        <span class="bg-red-100 text-red-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">REVISI</span>
+                        {% else %}
+                        <span class="bg-green-100 text-green-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">DISETUJUI</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="toggleDetail('{{ logbook.id }}')" class="text-[#00bfff] text-[10px] font-bold tracking-wider hover:underline uppercase">
+                            TINJAU
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Templates for Details -->
+<div class="hidden">
+    {% for logbook in logbooks %}
+    <div id="template-logbook-{{ logbook.id }}" class="p-4 sm:p-6 bg-[#fafafa]">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Deskripsi Pekerjaan -->
+            <div class="lg:col-span-2 space-y-4">
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Judul Logbook</h4>
+                    <p class="text-sm text-gray-800 font-medium">{{ logbook.judul }}</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Detail Pekerjaan</h4>
+                    <p class="text-sm text-gray-700 leading-relaxed">{{ logbook.detail_pekerjaan }}</p>
+                </div>
+                
+                {% if logbook.tautan_pendukung or logbook.lampiran_gambar or logbook.lampiran_dokumen or logbook.file_pembimbing %}
+                <div class="pt-2 border-t border-gray-200">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>
+                    <div class="flex flex-wrap gap-3">
+                        {% if logbook.tautan_pendukung %}
+                        <a href="{{ logbook.tautan_pendukung }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors">
+                            <i class="fa-solid fa-link"></i> Tautan
+                        </a>
+                        {% endif %}
+                        {% if logbook.lampiran_gambar %}
+                        <a href="{{ logbook.lampiran_gambar.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-600 rounded text-xs font-medium hover:bg-purple-100 transition-colors">
+                            <i class="fa-solid fa-image"></i> Gambar
+                        </a>
+                        {% endif %}
+                        {% if logbook.lampiran_dokumen %}
+                        <a href="{{ logbook.lampiran_dokumen.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-xs font-medium hover:bg-gray-300 transition-colors">
+                            <i class="fa-solid fa-file-pdf"></i> Dokumen
+                        </a>
+                        {% endif %}
+                        {% if logbook.file_pembimbing %}
+                        <a href="{{ logbook.file_pembimbing.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100 transition-colors">
+                            <i class="fa-solid fa-file-circle-check"></i> File Pembimbing
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Feedback Form -->
+            <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Tinjauan Pembimbing</h4>
+                <form method="POST" action="{% url 'admin_logbook' %}" enctype="multipart/form-data" class="space-y-3 m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="logbook_id" value="{{ logbook.id }}">
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Status Persetujuan</label>
+                        <select name="status" class="w-full border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 focus:outline-none focus:border-[#00bfff]">
+                            <option value="MENUNGGU" {% if logbook.status == 'MENUNGGU' %}selected{% endif %}>MENUNGGU</option>
+                            <option value="REVISI" {% if logbook.status == 'REVISI' %}selected{% endif %}>PERLU REVISI</option>
+                            <option value="DISETUJUI" {% if logbook.status == 'DISETUJUI' %}selected{% endif %}>DISETUJUI</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Catatan Pembimbing (Opsional)</label>
+                        <textarea name="catatan" rows="3" placeholder="Berikan catatan perbaikan..." class="w-full border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 focus:outline-none focus:border-[#00bfff] resize-none">{{ logbook.catatan_pembimbing|default_if_none:"" }}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Unggah Berkas Pendukung (Opsional)</label>
+                        <input type="file" name="file_pembimbing" class="w-full bg-white border border-gray-200 rounded text-[11px] px-2 py-1 text-gray-700 focus:outline-none focus:border-[#00bfff] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                        <p class="text-[9px] text-red-500 mt-1 font-semibold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i>Maksimal Ukuran File 10MB</p>
+                        {% if logbook.file_pembimbing %}
+                        <div class="mt-1 text-[9px] text-gray-500 truncate">
+                            Berkas Saat Ini: <a href="{{ logbook.file_pembimbing.url }}" target="_blank" class="text-[#00BFFF] hover:underline font-semibold">{{ logbook.file_pembimbing.name|slice:"19:" }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-[#00bfff] hover:bg-[#00a3d9] text-white px-4 py-2 rounded text-[11px] font-bold tracking-wide transition-colors">
+                        SIMPAN TINJAUAN
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+var dataTableLogbook;
+
+$(document).ready(function() {
+    dataTableLogbook = $('#dataTable').DataTable({
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+        },
+        dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+        pageLength: 10,
+        initComplete: function(settings, json) {
+            // Buat element dropdown filter status untuk diletakkan di dalam DataTables toolbar
+            var statusFilterHtml = `
+                <div class="flex items-center gap-2 ml-0 md:ml-4 mt-2 md:mt-0">
+                    <label for="tableStatusFilter" class="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">Status:</label>
+                    <select id="tableStatusFilter" class="bg-white border border-gray-200 text-gray-700 px-3 h-8 rounded text-xs font-bold focus:outline-none focus:border-[#00bfff] focus:ring-1 focus:ring-[#00bfff] shadow-sm cursor-pointer min-w-[130px]">
+                        <option value="">SEMUA STATUS</option>
+                        <option value="MENUNGGU">MENUNGGU</option>
+                        <option value="REVISI">PERLU REVISI</option>
+                        <option value="DISETUJUI">DISETUJUI</option>
+                    </select>
+                </div>
+            `;
+
+            // Sisipkan filter status ke samping pencarian bawaan DataTables (.dataTables_filter)
+            var filterContainer = $('.dataTables_filter');
+            if (filterContainer.length) {
+                filterContainer.addClass('flex items-center gap-2 flex-wrap').append(statusFilterHtml);
+                
+                // Listener untuk filter berdasarkan pilihan status
+                $('#tableStatusFilter').on('change', function() {
+                    var val = $(this).val();
+                    // Lakukan exact match search (indeks kolom 2 adalah STATUS)
+                    dataTableLogbook.column(2).search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+            }
+        }
+    });
+
+    // Auto-open detail logbook jika parameter 'id' dikirim dari dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    const logbookId = urlParams.get('id');
+    if (logbookId) {
+        var tr = $('#row-logbook-' + logbookId);
+        if (tr.length) {
+            var rowIdx = dataTableLogbook.row(tr).index();
+            var pageLen = dataTableLogbook.page.len();
+            if (rowIdx !== undefined && pageLen > 0) {
+                var pos = dataTableLogbook.rows({ order: 'current', search: 'applied' }).indexes().indexOf(rowIdx);
+                if (pos !== -1) {
+                    var pageNum = Math.floor(pos / pageLen);
+                    dataTableLogbook.page(pageNum).draw(false);
+                }
+            }
+            toggleDetail(logbookId);
+            setTimeout(function() {
+                tr[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }
+});
+
+function toggleDetail(id) {
+    var tr = $('#row-logbook-' + id);
+    var row = dataTableLogbook.row(tr);
+    
+    if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass('bg-gray-50');
+    } else {
+        var detailHtml = $('#template-logbook-' + id).html();
+        row.child(detailHtml).show();
+        tr.addClass('bg-gray-50');
+    }
+}
+</script>
+{% endblock %}

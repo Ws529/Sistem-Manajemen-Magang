@@ -1,0 +1,413 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 flex justify-between items-center z-10 sticky top-0">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">Portofolio Proyek</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<style>
+    @media (min-width: 640px) {
+        .custom-filter-width {
+            width: 180px !important;
+            flex-shrink: 0 !important;
+        }
+        .custom-search-width {
+            width: 250px !important;
+            flex-shrink: 0 !important;
+        }
+    }
+</style>
+
+<div class="mb-6 flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-4 mt-2 w-full">
+    <!-- Category Filter Dropdown -->
+    <div class="custom-filter-width w-full">
+        <select id="categoryFilterSelect" onchange="setCategoryFilter(this.value)" 
+                class="w-full border border-gray-200 rounded-md py-2.5 px-4 text-[13px] text-gray-700 focus:outline-none focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] transition-colors bg-white cursor-pointer">
+            <option value="">Semua Kategori</option>
+            <option value="Website">Website</option>
+            <option value="Android">Android</option>
+            <option value="Desktop">Desktop</option>
+            <option value="IoT">IoT</option>
+        </select>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="custom-search-width w-full m-0 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input type="text" id="searchPortfolio" onkeyup="filterPortfolio()" placeholder="Cari proyek..." class="w-full border border-gray-200 rounded-md py-2.5 pl-10 pr-4 text-[13px] text-gray-700 focus:outline-none focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] transition-colors bg-white">
+    </div>
+
+    <!-- Tambah Proyek Button -->
+    <button onclick="document.getElementById('modalPortfolio').classList.remove('hidden')"
+        class="bg-[#00BFFF] hover:bg-sky-500 text-white text-[13px] font-bold px-5 py-2.5 rounded-md shadow-sm transition-colors uppercase tracking-wide h-[42px] shrink-0 text-center">
+        TAMBAH PROYEK
+    </button>
+</div>
+
+<!-- Project Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="portfolioContainer">
+    {% for p in portfolio_list %}
+    <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden flex flex-col relative group hover:shadow-md transition-shadow p-card" data-search="{{ p.judul_proyek|lower }} {{ p.deskripsi|lower }} {{ p.kategori|lower }} {{ p.teknologi|lower }} {{ p.database|default_if_none:''|lower }}" data-category="{{ p.kategori|default:''|lower }}">
+        <!-- Cover Image -->
+        <div class="w-full aspect-[16/9] bg-slate-100 relative overflow-hidden">
+            {% if p.gambar_sampul %}
+            <img src="{{ p.gambar_sampul.url }}" alt="Cover" class="w-full h-full object-cover object-top">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" alt="Cover" class="w-full h-full object-cover">
+            {% endif %}
+            
+            {% if p.kategori %}
+            <div class="absolute top-4 left-4">
+                <span class="bg-[#00BFFF] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase">{{ p.kategori }}</span>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons (Edit & Delete) -->
+            <div class="absolute top-4 right-4 flex items-center gap-2">
+                <!-- Edit Button -->
+                <button type="button" onclick="openEditModal('{{ p.id }}', '{{ p.judul_proyek|escapejs }}', '{{ p.kategori|escapejs }}', '{{ p.deskripsi|escapejs }}', '{{ p.teknologi|escapejs }}', '{{ p.database|default_if_none:""|escapejs }}', '{{ p.tautan_repository|default_if_none:""|escapejs }}')" class="w-8 h-8 bg-black/40 hover:bg-blue-500 rounded-full flex items-center justify-center text-white transition-colors shadow-sm outline-none" title="Edit Proyek">
+                    <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                </button>
+                <!-- Delete Button -->
+                <form method="POST" onsubmit="return confirm('Hapus proyek ini?');" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="portfolio_id" value="{{ p.id }}">
+                    <button type="submit" class="w-8 h-8 bg-black/40 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors shadow-sm outline-none" title="Hapus Proyek">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col">
+            <h4 class="text-lg font-bold text-gray-800 leading-tight">{{ p.judul_proyek }}</h4>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-400">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-code text-[#00BFFF] text-[10px]"></i>{{ p.teknologi }}</span>
+                {% if p.database %}
+                <span class="text-gray-200">|</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-database text-sky-500 text-[10px]"></i>{{ p.database }}</span>
+                {% endif %}
+            </div>
+            
+            <p class="text-[13px] text-gray-400 leading-relaxed line-clamp-2 mt-4 mb-6 flex-1">{{ p.deskripsi }}</p>
+            
+            <!-- Card Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-gray-50 shrink-0 mt-auto">
+                <div class="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i> {{ p.created_at|date:"d M Y" }}
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <button type="button" onclick="showDetail('{{ p.judul_proyek|escapejs }}', '{{ p.deskripsi|escapejs }}', '{% if p.gambar_sampul %}{{ p.gambar_sampul.url|escapejs }}{% endif %}', '{{ p.teknologi|escapejs }}', '{{ p.database|default_if_none:""|escapejs }}', '{{ p.kategori|escapejs }}', '{{ p.tautan_repository|default_if_none:""|escapejs }}')" class="text-[#00BFFF] text-[11px] font-bold tracking-wider uppercase hover:underline outline-none">
+                        DETAIL
+                    </button>
+                    {% if p.tautan_repository %}
+                    <span class="text-gray-200">|</span>
+                    <a href="{{ p.tautan_repository }}" target="_blank" class="text-gray-500 text-[11px] font-bold tracking-wider uppercase hover:underline outline-none">
+                        REPO
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <!-- Empty State -->
+    <div class="col-span-full bg-white rounded-2xl shadow-sm border border-gray-100 py-20 text-center">
+        <i class="fa-solid fa-briefcase text-gray-200 text-6xl mb-4"></i>
+        <p class="text-gray-400 font-semibold text-sm">Belum ada proyek portofolio</p>
+        <p class="text-gray-300 text-xs mt-1">Klik "TAMBAH PROYEK" untuk memulai.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal Tambah Proyek -->
+<div id="modalPortfolio" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#00BFFF] shrink-0">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Tambah Proyek</h3>
+            <button onclick="document.getElementById('modalPortfolio').classList.add('hidden')" class="text-white/80 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <!-- Scrollable Form Body -->
+        <form method="POST" enctype="multipart/form-data" class="flex flex-col min-h-0">
+            {% csrf_token %}
+            <!-- Scrollable input wrapper -->
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Gambar Cover (.jpg, .png - Maks. 5MB)</label>
+                    <input type="file" id="tambah_gambar_sampul" name="gambar_sampul" accept=".jpg, .jpeg, .png" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] transition-colors file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#00BFFF] hover:file:bg-sky-100 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Judul Proyek <span class="text-red-500">*</span></label>
+                    <input type="text" name="judul" placeholder="Nama proyek..." required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Kategori Proyek <span class="text-red-500">*</span></label>
+                    <select name="kategori" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF] bg-white cursor-pointer">
+                        <option value="" disabled selected>Pilih Kategori...</option>
+                        <option value="Website">Website</option>
+                        <option value="Android">Android</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="IoT">IoT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Deskripsi <span class="text-red-500">*</span></label>
+                    <textarea name="deskripsi" rows="3" placeholder="Jelaskan proyek kamu..." required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF] resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Teknologi <span class="text-red-500">*</span></label>
+                    <input type="text" name="teknologi" placeholder="Django · React · dll" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Database</label>
+                    <input type="text" name="database" placeholder="MySQL · PostgreSQL · SQLite · dll" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Link Github atau Gitlab </label>
+                    <input type="url" name="link" placeholder="https://..." class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+            </div>
+            <!-- Pinned action buttons container -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3 shrink-0">
+                <button type="button" onclick="document.getElementById('modalPortfolio').classList.add('hidden')"
+                    class="flex-1 py-2.5 text-xs font-bold text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors uppercase tracking-wide">Batal</button>
+                <button type="submit"
+                    class="flex-1 py-2.5 text-xs font-bold text-white bg-[#00BFFF] rounded-xl hover:bg-sky-500 transition-colors uppercase tracking-wide">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Proyek -->
+<div id="modalEditPortfolio" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#00BFFF] shrink-0">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Edit Proyek</h3>
+            <button onclick="document.getElementById('modalEditPortfolio').classList.add('hidden')" class="text-white/80 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <!-- Scrollable Form Body -->
+        <form method="POST" enctype="multipart/form-data" class="flex flex-col min-h-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="portfolio_id" id="edit_portfolio_id">
+            <!-- Scrollable input wrapper -->
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Gambar Cover (.jpg, .png - Maks. 5MB) <span class="text-[9px] text-gray-400 font-normal lowercase">(kosongkan jika tidak ingin diubah)</span></label>
+                    <input type="file" id="edit_gambar_sampul" name="gambar_sampul" accept=".jpg, .jpeg, .png" class="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] transition-colors file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#00BFFF] hover:file:bg-sky-100 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Judul Proyek <span class="text-red-500">*</span></label>
+                    <input type="text" name="judul" id="edit_judul" placeholder="Nama proyek..." required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Kategori Proyek <span class="text-red-500">*</span></label>
+                    <select name="kategori" id="edit_kategori" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF] bg-white cursor-pointer">
+                        <option value="" disabled>Pilih Kategori...</option>
+                        <option value="Website">Website</option>
+                        <option value="Android">Android</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="IoT">IoT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Deskripsi <span class="text-red-500">*</span></label>
+                    <textarea name="deskripsi" id="edit_deskripsi" rows="3" placeholder="Jelaskan proyek kamu..." required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF] resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Teknologi <span class="text-red-500">*</span></label>
+                    <input type="text" name="teknologi" id="edit_teknologi" placeholder="Django · React · dll" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Database</label>
+                    <input type="text" name="database" id="edit_database" placeholder="MySQL · PostgreSQL · SQLite · dll" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Link Github atau Gitlab</label>
+                    <input type="url" name="link" id="edit_link" placeholder="https://..." class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#00BFFF]">
+                </div>
+            </div>
+            <!-- Pinned action buttons container -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3 shrink-0">
+                <button type="button" onclick="document.getElementById('modalEditPortfolio').classList.add('hidden')"
+                    class="flex-1 py-2.5 text-xs font-bold text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors uppercase tracking-wide">Batal</button>
+                <button type="submit"
+                    class="flex-1 py-2.5 text-xs font-bold text-white bg-[#00BFFF] rounded-xl hover:bg-sky-500 transition-colors uppercase tracking-wide">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Detail Proyek -->
+<div id="modalDetail" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Image Cover in Modal -->
+        <div class="h-56 bg-gray-200 relative shrink-0">
+            <img id="detailGambar" src="" alt="Cover" class="w-full h-full object-cover">
+            <div class="absolute top-4 left-4" id="detailKategoriContainer">
+                <span id="detailKategori" class="bg-[#00BFFF] text-white text-[10px] font-bold px-3 py-1.5 rounded shadow-sm uppercase tracking-wider"></span>
+            </div>
+            <button onclick="document.getElementById('modalDetail').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-colors shadow-sm z-10 outline-none">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="p-7 overflow-y-auto">
+            <h3 id="detailJudul" class="text-2xl font-bold text-gray-800 leading-tight"></h3>
+            <p id="detailTeknologi" class="text-[13px] font-semibold text-[#00BFFF] mt-1 mb-2 tracking-wide"></p>
+            <p id="detailDatabase" class="text-xs font-semibold text-gray-500 mb-5 tracking-wide"></p>
+            
+            <h5 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Deskripsi Proyek</h5>
+            <p id="detailDeskripsi" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></p>
+            
+            <!-- Link Repository -->
+            <div id="detailLinkContainer" class="hidden mt-5 pt-4 border-t border-gray-100">
+                <a id="detailLink" href="#" target="_blank" class="inline-flex items-center gap-2 bg-[#00BFFF] hover:bg-sky-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
+                    <i class="fa-solid fa-code-branch"></i> Lihat Repository
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, judul, kategori, deskripsi, teknologi, database, link) {
+        document.getElementById('edit_portfolio_id').value = id;
+        document.getElementById('edit_judul').value = judul;
+        
+        // Handle select value setting, if the category is not one of the pre-defined options, dynamically append it to select options
+        var selectKategori = document.getElementById('edit_kategori');
+        var optionExists = false;
+        for (var i = 0; i < selectKategori.options.length; i++) {
+            if (selectKategori.options[i].value === kategori) {
+                optionExists = true;
+                break;
+            }
+        }
+        if (!optionExists && kategori !== '' && kategori !== 'None') {
+            var newOpt = document.createElement('option');
+            newOpt.value = kategori;
+            newOpt.text = kategori;
+            selectKategori.add(newOpt);
+        }
+        selectKategori.value = kategori;
+        
+        document.getElementById('edit_deskripsi').value = deskripsi;
+        document.getElementById('edit_teknologi').value = teknologi;
+        document.getElementById('edit_database').value = database;
+        document.getElementById('edit_link').value = link;
+        
+        document.getElementById('modalEditPortfolio').classList.remove('hidden');
+    }
+
+    function showDetail(judul, deskripsi, gambar, teknologi, database, kategori, link) {
+        document.getElementById('detailJudul').textContent = judul;
+        document.getElementById('detailDeskripsi').textContent = deskripsi;
+        document.getElementById('detailTeknologi').textContent = teknologi;
+        document.getElementById('detailDatabase').textContent = database ? 'Database: ' + database : '';
+        
+        const imgEl = document.getElementById('detailGambar');
+        if (gambar && gambar !== 'None' && gambar !== '') {
+            imgEl.src = gambar;
+        } else {
+            imgEl.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800';
+        }
+
+        const katEl = document.getElementById('detailKategori');
+        const katContainer = document.getElementById('detailKategoriContainer');
+        if (kategori && kategori !== 'None' && kategori !== '') {
+            katEl.textContent = kategori;
+            katContainer.classList.remove('hidden');
+        } else {
+            katContainer.classList.add('hidden');
+        }
+
+        const linkContainer = document.getElementById('detailLinkContainer');
+        const linkEl = document.getElementById('detailLink');
+        if (link && link !== '' && link !== 'None') {
+            linkEl.href = link;
+            linkContainer.classList.remove('hidden');
+        } else {
+            linkContainer.classList.add('hidden');
+        }
+
+        document.getElementById('modalDetail').classList.remove('hidden');
+    }
+
+    var activeCategory = '';
+
+    function normalizeCategory(cat) {
+        cat = cat.toLowerCase().trim();
+        if (cat.includes('web') || cat.includes('website')) return 'website';
+        if (cat.includes('android') || cat.includes('mobile') || cat.includes('ios')) return 'android';
+        if (cat.includes('desktop') || cat.includes('pc') || cat.includes('windows') || cat.includes('mac')) return 'desktop';
+        if (cat.includes('iot') || cat.includes('internet of things') || cat.includes('arduino') || cat.includes('raspberry')) return 'iot';
+        return cat;
+    }
+
+    function setCategoryFilter(category) {
+        activeCategory = category.toLowerCase();
+        filterPortfolio();
+    }
+
+    function filterPortfolio() {
+        const searchVal = document.getElementById('searchPortfolio').value.toLowerCase();
+        const cards = document.querySelectorAll('#portfolioContainer .p-card');
+        
+        cards.forEach(card => {
+            const searchData = card.getAttribute('data-search') || '';
+            const cardCategory = card.getAttribute('data-category') || '';
+            
+            const normalizedCardCategory = normalizeCategory(cardCategory);
+            const normalizedActiveCategory = normalizeCategory(activeCategory);
+            
+            const matchesSearch = searchData.includes(searchVal);
+            const matchesCategory = normalizedActiveCategory === '' || normalizedCardCategory === normalizedActiveCategory;
+            
+            if (matchesSearch && matchesCategory) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // --- COVER IMAGE SIZE VALIDATION ---
+    const tambahGambar = document.getElementById('tambah_gambar_sampul');
+    const editGambar = document.getElementById('edit_gambar_sampul');
+    const maxImageSize = 5 * 1024 * 1024; // 5MB
+
+    function validateImageSize(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.size > maxImageSize) {
+                alert(`Ukuran berkas "${file.name}" terlalu besar! Maksimal ukuran gambar cover adalah 5MB.`);
+                input.value = ''; // Reset input
+            }
+        }
+    }
+
+    if (tambahGambar) {
+        tambahGambar.addEventListener('change', function() {
+            validateImageSize(this);
+        });
+    }
+    if (editGambar) {
+        editGambar.addEventListener('change', function() {
+            validateImageSize(this);
+        });
+    }
+</script>
+{% endblock %}

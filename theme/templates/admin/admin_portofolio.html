@@ -1,0 +1,258 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    @media (min-width: 640px) {
+        .custom-filter-width {
+            width: 160px !important;
+            flex-shrink: 0 !important;
+        }
+        .custom-search-width {
+            width: 240px !important;
+            flex-shrink: 0 !important;
+        }
+    }
+</style>
+
+<div class="mb-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">PORTOFOLIO AKHIR</h2>
+        <p class="text-xs text-gray-500 mt-1">Galeri proyek akhir yang telah diselesaikan oleh peserta magang.</p>
+    </div>
+    
+    <!-- Search & Filter Controls Aligned Right -->
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto shrink-0">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <!-- Search Field -->
+            <div class="custom-search-width w-full border border-gray-200 bg-white rounded-xl flex items-center overflow-hidden h-10 shadow-sm focus-within:border-[#00BFFF] transition-colors relative">
+                <span class="pl-3.5 text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="searchAdminPortfolio" onkeyup="filterAdminPortfolio()" placeholder="Cari nama atau proyek..." class="w-full h-full border-none focus:ring-0 text-xs px-2.5 outline-none">
+            </div>
+            
+            <!-- Category Filter Dropdown -->
+            <div class="custom-filter-width w-full">
+                <select id="adminCategoryFilterSelect" onchange="setAdminCategoryFilter(this.value)" 
+                        class="w-full border border-gray-200 bg-white rounded-xl py-2 px-3.5 text-xs text-gray-700 focus:outline-none focus:border-[#00BFFF] focus:ring-1 focus:ring-[#00BFFF] transition-colors cursor-pointer h-10">
+                    <option value="">Semua Kategori</option>
+                    <option value="Website">Website</option>
+                    <option value="Android">Android</option>
+                    <option value="Desktop">Desktop</option>
+                    <option value="IoT">IoT</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Export Excel Button -->
+        <a href="{% url 'export_portfolio_excel' %}" class="bg-[#00BFFF] hover:bg-sky-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors shadow-sm flex items-center justify-center gap-2 h-10 w-full sm:w-auto shrink-0 uppercase">
+            <i class="fa-solid fa-file-excel text-sm"></i> Export Excel
+        </a>
+    </div>
+</div>
+
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="adminPortfolioContainer">
+    {% for portfolio in portofolios %}
+    <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden flex flex-col relative group hover:shadow-md transition-shadow ap-card" data-search="{{ portfolio.judul_proyek|lower }} {{ portfolio.deskripsi|lower }} {{ portfolio.kategori|lower }} {{ portfolio.teknologi|lower }} {{ portfolio.database|default_if_none:''|lower }} {{ portfolio.user.first_name|lower }}" data-category="{{ portfolio.kategori|default:''|lower }}">
+        <!-- Cover Image -->
+        <div class="w-full aspect-[16/9] bg-slate-100 relative overflow-hidden">
+            {% if portfolio.gambar_sampul %}
+            <img src="{{ portfolio.gambar_sampul.url }}" alt="Cover" class="w-full h-full object-cover object-top">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" alt="Cover" class="w-full h-full object-cover">
+            {% endif %}
+            
+            {% if portfolio.kategori %}
+            <div class="absolute top-4 left-4">
+                <span class="bg-[#00BFFF] text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase">{{ portfolio.kategori }}</span>
+            </div>
+            {% endif %}
+            
+            <!-- Delete Button (Admin) -->
+            <form method="POST" action="{% url 'admin_portofolio' %}" onsubmit="return confirm('Hapus portofolio ini?');" class="absolute top-4 right-4">
+                {% csrf_token %}
+                <input type="hidden" name="portfolio_id" value="{{ portfolio.id }}">
+                <button type="submit" class="w-8 h-8 bg-black/40 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col">
+            <!-- Student Label -->
+            <span class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-1.5 block leading-none">{{ portfolio.user.first_name }} &bull; {{ portfolio.user.universitas|default:"-" }}</span>
+            
+            <h4 class="text-lg font-bold text-gray-800 leading-tight">{{ portfolio.judul_proyek }}</h4>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-400">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-code text-[#00BFFF] text-[10px]"></i>{{ portfolio.teknologi }}</span>
+                {% if portfolio.database %}
+                <span class="text-gray-200">|</span>
+                <span class="flex items-center gap-1"><i class="fa-solid fa-database text-sky-500 text-[10px]"></i>{{ portfolio.database }}</span>
+                {% endif %}
+            </div>
+            
+            <p class="text-[13px] text-gray-400 leading-relaxed line-clamp-2 mt-4 mb-6 flex-1">{{ portfolio.deskripsi }}</p>
+            
+            <!-- Card Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-gray-50 shrink-0 mt-auto">
+                <div class="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i> {{ portfolio.created_at|date:"d M Y" }}
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <button type="button" onclick="openDetail('{{ portfolio.id }}')" class="text-[#00BFFF] text-[11px] font-bold tracking-wider uppercase hover:underline outline-none">
+                        DETAIL
+                    </button>
+                    {% if portfolio.tautan_repository %}
+                    <span class="text-gray-200">|</span>
+                    <a href="{{ portfolio.tautan_repository }}" target="_blank" class="text-gray-500 text-[11px] font-bold tracking-wider uppercase hover:underline outline-none">
+                        REPO
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail untuk portfolio ini -->
+    <div id="detail-modal-{{ portfolio.id }}" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Cover image in modal -->
+            <div class="h-56 bg-gray-200 relative shrink-0">
+                {% if portfolio.gambar_sampul %}
+                <img src="{{ portfolio.gambar_sampul.url }}" alt="Cover" class="w-full h-full object-cover">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" alt="Cover" class="w-full h-full object-cover">
+                {% endif %}
+                
+                {% if portfolio.kategori %}
+                <div class="absolute top-4 left-4">
+                    <span class="bg-[#00BFFF] text-white text-[10px] font-bold px-3 py-1.5 rounded shadow-sm uppercase tracking-wider">{{ portfolio.kategori }}</span>
+                </div>
+                {% endif %}
+                
+                <button onclick="closeDetail('{{ portfolio.id }}')" class="absolute top-4 right-4 w-8 h-8 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-colors shadow-sm z-10 outline-none">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-7 overflow-y-auto min-h-0">
+                <!-- User Profile info row in Modal -->
+                <div class="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-100">
+                    <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm shrink-0">
+                        {% if portfolio.user.avatar %}
+                        <img src="{{ portfolio.user.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ portfolio.user.get_full_name|default:portfolio.user.username|urlencode }}&background=00BFFF&color=fff&size=100" alt="Avatar" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-gray-800 leading-tight">{{ portfolio.user.first_name }}</p>
+                        <p class="text-xs text-gray-400 leading-tight mt-0.5">{{ portfolio.user.universitas|default:"-" }}</p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold text-gray-800 leading-tight">{{ portfolio.judul_proyek }}</h3>
+                <p class="text-[13px] font-semibold text-[#00BFFF] mt-1 mb-2 tracking-wide flex items-center gap-1">
+                    <i class="fa-solid fa-code text-[#00BFFF]"></i> {{ portfolio.teknologi }}
+                </p>
+                {% if portfolio.database %}
+                <p class="text-xs font-semibold text-gray-500 mb-5 tracking-wide flex items-center gap-1">
+                    <i class="fa-solid fa-database text-sky-500"></i> Database: {{ portfolio.database }}
+                </p>
+                {% endif %}
+                
+                <h5 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Deskripsi Proyek</h5>
+                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ portfolio.deskripsi }}</p>
+                
+                <!-- Link Repository -->
+                {% if portfolio.tautan_repository %}
+                <div class="mt-5 pt-4 border-t border-gray-100">
+                    <a href="{{ portfolio.tautan_repository }}" target="_blank" class="inline-flex items-center gap-2 bg-[#00BFFF] hover:bg-sky-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">
+                        <i class="fa-solid fa-code-branch"></i> Lihat Repository
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full bg-white border border-gray-100 rounded-xl shadow-sm p-12 text-center">
+        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-layer-group text-gray-300 text-3xl"></i>
+        </div>
+        <h3 class="text-base font-bold text-gray-700">Tidak Ada Portofolio</h3>
+        <p class="text-sm text-gray-500 mt-2">Belum ada peserta magang yang mengunggah proyek akhir.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function openDetail(id) {
+    const modal = document.getElementById('detail-modal-' + id);
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeDetail(id) {
+    const modal = document.getElementById('detail-modal-' + id);
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+// Close on backdrop click
+document.querySelectorAll('[id^="detail-modal-"]').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+            this.classList.remove('flex');
+        }
+    });
+});
+
+var activeAdminCategory = '';
+
+function normalizeCategory(cat) {
+    cat = cat.toLowerCase().trim();
+    if (cat.includes('web') || cat.includes('website')) return 'website';
+    if (cat.includes('android') || cat.includes('mobile') || cat.includes('ios')) return 'android';
+    if (cat.includes('desktop') || cat.includes('pc') || cat.includes('windows') || cat.includes('mac')) return 'desktop';
+    if (cat.includes('iot') || cat.includes('internet of things') || cat.includes('arduino') || cat.includes('raspberry')) return 'iot';
+    return cat;
+}
+
+function setAdminCategoryFilter(category) {
+    activeAdminCategory = category.toLowerCase();
+    filterAdminPortfolio();
+}
+
+function filterAdminPortfolio() {
+    const searchVal = document.getElementById('searchAdminPortfolio').value.toLowerCase();
+    const cards = document.querySelectorAll('#adminPortfolioContainer .ap-card');
+    
+    cards.forEach(card => {
+        const searchData = card.getAttribute('data-search') || '';
+        const cardCategory = card.getAttribute('data-category') || '';
+        
+        const normalizedCardCategory = normalizeCategory(cardCategory);
+        const normalizedActiveCategory = normalizeCategory(activeAdminCategory);
+        
+        const matchesSearch = searchData.includes(searchVal);
+        const matchesCategory = normalizedActiveCategory === '' || normalizedCardCategory === normalizedActiveCategory;
+        
+        if (matchesSearch && matchesCategory) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIM Magang Portofolio</title>
+    
+    <!-- Link Favicon Logo Kabupaten Bekasi -->
+    <link rel="icon" type="image/png" href="{% static 'images/logo_kab-bekasi.png' %}">
+    {% tailwind_css %}
+</head>
+<body class="bg-gray-50 flex h-screen overflow-hidden font-sans">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#00c3ff] text-white flex flex-col">
+        <div class="p-6 text-center border-b border-white/20">
+            <h2 class="text-2xl font-bold tracking-wider">DISKOMINFO</h2>
+            <p class="text-sm opacity-90 font-light">User Dashboard</p>
+        </div>
+        <nav class="flex-1 mt-4">
+            <a href="{% url 'dashboard' %}" class="block py-3 px-6 hover:bg-white/20 transition-colors">Dashboard</a>
+            <a href="{% url 'daftar_tugas' %}" class="block py-3 px-6 hover:bg-white/20 transition-colors">Tugas Saya</a>
+            <a href="{% url 'entri_logbook' %}" class="block py-3 px-6 hover:bg-white/20 transition-colors">Entri Logbook</a>
+            <a href="{% url 'daftar_portfolio' %}" class="block py-3 px-6 hover:bg-white/20 transition-colors">Portofolio Proyek</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <!-- Dynamic Header -->
+        <header class="bg-white p-6 border-b border-gray-200">
+            <h1 class="text-xl font-semibold text-gray-700 uppercase tracking-wide">
+                {% block header %}DASHBOARD{% endblock %}
+            </h1>
+        </header>
+        
+        <!-- Dynamic Content -->
+        <div class="p-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

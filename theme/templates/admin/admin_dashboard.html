@@ -1,0 +1,223 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">PANEL KENDALI ADMINISTRATOR</h2>
+        <p class="text-xs text-gray-500 mt-1">Ringkasan metrik dan status operasional peserta magang aktif.</p>
+    </div>
+</div>
+
+{% if messages %}
+<div class="mb-6 space-y-2">
+    {% for message in messages %}
+    <div class="p-4 rounded-md text-sm font-medium {% if message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col justify-between min-h-[8.5rem] h-auto relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase">TOTAL MAGANG AKTIF</h3>
+            <i class="fa-solid fa-users text-[#00bfff] text-lg"></i>
+        </div>
+        <div class="mt-2">
+            <p class="text-3xl font-bold text-gray-800">{{ total_mahasiswa }}</p>
+            <p class="text-[10px] text-gray-400 mt-2 leading-snug">Jumlah mahasiswa yang sedang aktif melaksanakan kegiatan magang.</p>
+        </div>
+    </div>
+    <div class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col justify-between min-h-[8.5rem] h-auto relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase">ANTRIAN VALIDASI</h3>
+            <i class="fa-solid fa-clipboard text-orange-400 text-lg"></i>
+        </div>
+        <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-800">{{ antrian_validasi }}</p>
+            {% if antrian_validasi > 0 %}
+            <p class="text-[11px] text-red-500 font-bold mt-0.5">! Memerlukan Tindakan</p>
+            {% else %}
+            <p class="text-[11px] text-green-500 font-bold mt-0.5">Semua sudah ditangani</p>
+            {% endif %}
+            <p class="text-[10px] text-gray-400 mt-2 leading-snug">Kerjaannya Admin/Pembimbing (menunggu Anda memeriksa logbook mahasiswa).</p>
+        </div>
+    </div>
+    <div class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col justify-between min-h-[8.5rem] h-auto relative overflow-hidden col-span-1 sm:col-span-2 md:col-span-1">
+        <div class="flex justify-between items-start">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase">TUGAS TERTUNDA</h3>
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>
+        </div>
+        <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-800">{{ tugas_tertunda }}</p>
+            <p class="text-[11px] text-gray-400 font-medium mt-0.5">Penugasan Tertunda</p>
+            <p class="text-[10px] text-gray-400 mt-2 leading-snug">Kerjaannya Peserta Magang (menunggu mahasiswa menyelesaikan tugas yang Anda berikan).</p>
+        </div>
+    </div>
+</div>
+
+<!-- Table Section -->
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden">
+    <!-- Title Row -->
+    <div class="px-6 py-5 bg-[#f8fafc] border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-[13px] font-semibold text-gray-600">Catatan Harian Terbaru</h3>
+        <a href="{% url 'admin_logbook' %}" class="text-[#00bfff] text-xs font-semibold hover:underline">Lihat Semua →</a>
+    </div>
+    
+    <!-- Table -->
+    <div class="w-full overflow-x-auto p-6">
+        <table id="dataTable" class="w-full text-left text-sm text-gray-600 min-w-[700px]">
+            <thead class="text-[11px] text-slate-700 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">MAHASISWA</th>
+                    <th scope="col" class="px-6 py-4">INSTITUSI</th>
+                    <th scope="col" class="px-6 py-4">TANGGAL SUBMISI</th>
+                    <th scope="col" class="px-6 py-4">STATUS</th>
+                    <th scope="col" class="px-6 py-4 text-right">AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lb in recent_logbooks %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50" id="row-logbook-{{ lb.id }}">
+                    <td class="px-6 py-4">
+                        <p class="font-bold text-gray-800 text-xs">{{ lb.user.first_name }}</p>
+                        <p class="text-[10px] text-gray-400">NIM: {{ lb.user.nim|default:"-" }}</p>
+                    </td>
+                    <td class="px-6 py-4 text-xs">{{ lb.user.universitas|default:"-" }}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">{{ lb.created_at|date:"d-m-Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if lb.status == 'REVISI' %}
+                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">REVISI</span>
+                        {% elif lb.status == 'MENUNGGU' %}
+                        <span class="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">MENUNGGU</span>
+                        {% else %}
+                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">DISETUJUI</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="toggleDetail('{{ lb.id }}')" class="text-[#00bfff] text-xs font-semibold hover:underline">TINJAU</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Templates for Details -->
+<div class="hidden">
+    {% for lb in recent_logbooks %}
+    <div id="template-logbook-{{ lb.id }}" class="p-4 sm:p-6 bg-[#fafafa]">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+            <!-- Deskripsi Pekerjaan -->
+            <div class="lg:col-span-2 space-y-4">
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Judul Logbook</h4>
+                    <p class="text-sm text-gray-800 font-medium">{{ lb.judul }}</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Detail Pekerjaan</h4>
+                    <p class="text-sm text-gray-700 leading-relaxed">{{ lb.detail_pekerjaan }}</p>
+                </div>
+                
+                {% if lb.tautan_pendukung or lb.lampiran_gambar or lb.lampiran_dokumen or lb.file_pembimbing %}
+                <div class="pt-2 border-t border-gray-200">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Lampiran</h4>
+                    <div class="flex flex-wrap gap-3">
+                        {% if lb.tautan_pendukung %}
+                        <a href="{{ lb.tautan_pendukung }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors">
+                            <i class="fa-solid fa-link"></i> Tautan
+                        </a>
+                        {% endif %}
+                        {% if lb.lampiran_gambar %}
+                        <a href="{{ lb.lampiran_gambar.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-600 rounded text-xs font-medium hover:bg-purple-100 transition-colors">
+                            <i class="fa-solid fa-image"></i> Gambar
+                        </a>
+                        {% endif %}
+                        {% if lb.lampiran_dokumen %}
+                        <a href="{{ lb.lampiran_dokumen.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-xs font-medium hover:bg-gray-300 transition-colors">
+                            <i class="fa-solid fa-file-pdf"></i> Dokumen
+                        </a>
+                        {% endif %}
+                        {% if lb.file_pembimbing %}
+                        <a href="{{ lb.file_pembimbing.url }}" target="_blank" class="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100 transition-colors">
+                            <i class="fa-solid fa-file-circle-check"></i> File Pembimbing
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Feedback Form -->
+            <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Tinjauan Pembimbing</h4>
+                <form method="POST" action="{% url 'admin_logbook' %}" enctype="multipart/form-data" class="space-y-3 m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="logbook_id" value="{{ lb.id }}">
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Status Persetujuan</label>
+                        <select name="status" class="w-full border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 focus:outline-none focus:border-[#00bfff]">
+                            <option value="MENUNGGU" {% if lb.status == 'MENUNGGU' %}selected{% endif %}>MENUNGGU</option>
+                            <option value="REVISI" {% if lb.status == 'REVISI' %}selected{% endif %}>PERLU REVISI</option>
+                            <option value="DISETUJUI" {% if lb.status == 'DISETUJUI' %}selected{% endif %}>DISETUJUI</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Catatan Pembimbing (Opsional)</label>
+                        <textarea name="catatan" rows="3" placeholder="Berikan catatan perbaikan..." class="w-full border border-gray-200 rounded text-xs px-2 py-1.5 text-gray-700 focus:outline-none focus:border-[#00bfff] resize-none">{{ lb.catatan_pembimbing|default_if_none:"" }}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] text-gray-500 mb-1">Unggah Berkas Pendukung (Opsional)</label>
+                        <input type="file" name="file_pembimbing" class="w-full bg-white border border-gray-200 rounded text-[11px] px-2 py-1 text-gray-700 focus:outline-none focus:border-[#00bfff] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                        <p class="text-[9px] text-red-500 mt-1 font-semibold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i>Maksimal Ukuran File 10MB</p>
+                        {% if lb.file_pembimbing %}
+                        <div class="mt-1 text-[9px] text-gray-500 truncate">
+                            Berkas Saat Ini: <a href="{{ lb.file_pembimbing.url }}" target="_blank" class="text-[#00BFFF] hover:underline font-semibold">{{ lb.file_pembimbing.name|slice:"19:" }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-[#00bfff] hover:bg-[#00a3d9] text-white px-4 py-2 rounded text-[11px] font-bold tracking-wide transition-colors">
+                        SIMPAN TINJAUAN
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    var dataTableDashboard;
+    $(document).ready(function() {
+        dataTableDashboard = $('#dataTable').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50]
+        });
+    });
+
+    function toggleDetail(id) {
+        var tr = $('#row-logbook-' + id);
+        var row = dataTableDashboard.row(tr);
+        
+        if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('bg-gray-50');
+        } else {
+            var detailHtml = $('#template-logbook-' + id).html();
+            row.child(detailHtml).show();
+            tr.addClass('bg-gray-50');
+        }
+    }
+</script>
+{% endblock %}

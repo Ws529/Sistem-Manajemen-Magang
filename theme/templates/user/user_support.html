@@ -1,0 +1,337 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 flex items-center z-10 sticky top-0">
+    <div>
+        <h2 class="text-gray-800 text-base sm:text-lg font-extrabold uppercase tracking-wide">Support & Tutorial</h2>
+        <p class="text-[10px] sm:text-xs text-gray-400 mt-0.5">Panduan lengkap penggunaan sistem SIMM Kabupaten Bekasi.</p>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-2">
+
+    <!-- Card 1 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-border-all text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">01. Dashboard</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Halaman dashboard menampilkan ringkasan logbook yang disetujui dan jumlah tugas yang selesai. Halaman ini juga menampilkan ringkasan instruksi kerja harian Anda. Ketika Anda mengklik tombol tambah logbook pada kolom instruksi kerja harian, sistem langsung mengarahkan Anda ke halaman entri logbook.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Akses menu Dashboard di bagian kiri sidebar.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Lihat ringkasan logbook yang disetujui dan jumlah tugas yang selesai.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Lihat daftar instruksi kerja harian Anda yang diberikan oleh pembimbing.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Klik tombol tambah logbook pada kolom instruksi kerja harian untuk langsung mengisi logbook baru.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-regular fa-file-lines text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">02. Halaman Tugas Saya</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Halaman ini menampilkan daftar seluruh tugas yang diberikan oleh pembimbing lapangan kepada Anda.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Akses menu Tugas Saya pada sidebar kiri.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Lihat daftar seluruh tugas yang didelegasikan oleh pembimbing lapangan.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Klik pada judul tugas atau baris tugas untuk melihat rincian instruksi lengkap.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-file-pen text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">03. Halaman Entri Logbook</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Anda dapat membuat data logbook harian baru di halaman ini. Anda juga dapat merevisi atau memperbaiki data logbook yang mendapat catatan perbaikan dari pembimbing lapangan.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah Pengisian & Revisi:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Akses menu Entri Logbook pada sidebar kiri.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Pilih tanggal pengerjaan dan isi deskripsi aktivitas secara rinci, lalu klik Simpan.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Pantau status logbook Anda pada tabel riwayat aktivitas di bagian bawah halaman.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Jika status bernilai <strong class="text-red-500">REVISI</strong>, klik tombol <strong class="text-[#00BFFF]">PERBAIKI</strong> pada kolom Aksi untuk memuat kembali data logbook ke form formulir.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Perbaiki isi kegiatan/uraian sesuai catatan revisi dari pembimbing, lalu klik <strong class="text-[#00BFFF]">SIMPAN PERUBAHAN</strong>.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-list-check text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">04. Halaman Riwayat Logbook</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Halaman ini menampilkan seluruh daftar riwayat logbook harian yang telah Anda buat. Anda dapat mengeksport seluruh data riwayat logbook tersebut ke dalam format dokumen Word.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Akses menu Riwayat Logbook pada sidebar kiri.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Lihat daftar riwayat logbook harian Anda yang telah terkirim beserta status verifikasinya.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Klik tombol ekspor yang tersedia untuk mengunduh riwayat logbook tersebut ke dokumen Word (.docx).</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-regular fa-folder-open text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">05. Halaman Portofolio Proyek</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Anda dapat mengunggah hasil proyek akhir magang Anda ke dalam halaman ini.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah pengisian portofolio:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Klik tombol tambah proyek.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Unggah gambar cover untuk menampilkan visual proyek Anda.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Masukkan judul proyek Anda.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Pilih kategori proyek yang sesuai, contohnya Website, Android, atau IoT.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Isi kolom deskripsi secara rinci untuk menjelaskan proyek Anda.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">6</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Isi kolom teknologi yang dipakai pada proyek Anda, contohnya Django atau Laravel.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">7</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Lampirkan tautan link GitHub atau GitLab proyek Anda.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-award text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">06. Dokumen Sertifikat</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Anda dapat melihat dokumen sertifikat resmi yang telah diterbitkan oleh pembimbing lapangan.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Langkah-langkah:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Akses menu Dokumen Sertifikat di bagian kiri bawah sidebar.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Sertifikat otomatis tampil dan siap diunduh jika total jam atau hari magang Anda sudah tercapai serta disetujui oleh pembimbing.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Gunakan tombol Unduh PDF untuk mengunduh dokumen secara resmi ke perangkat Anda.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 7 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-gear text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">TUTORIAL</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">07. Pengaturan</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Halaman pengaturan berfungsi untuk mengubah data profil peserta magang. Kelola data profil akademik Anda dengan saksama. Bidang yang wajib diisi ditandai dengan simbol bintang merah (<span class="text-red-500 font-bold">*</span>).</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Aturan pengisian profil dan keamanan:</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Anda dapat mengubah foto profil menggunakan berkas format PNG atau JPG. Anda disarankan memakai foto yang menggunakan almamater kampus.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Anda dapat menyesuaikan warna latar belakang (banner) profil Anda dengan mengeklik ikon edit (ikon pensil) di pojok kanan atas banner.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Isi data pribadi secara lengkap meliputi nama lengkap, NIM, Tempat Lahir, Tanggal Lahir, Jenis Kelamin, Nomor HP, dan email.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Isi informasi akademik secara lengkap meliputi nama universitas, fakultas, atau program studi.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Jika ingin mengubah password, Anda dapat menggantinya pada kolom keamanan akun. Masukkan password lama Anda, isi password baru, lalu masukkan konfirmasi password baru.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">6</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Setelah semua data selesai diisi atau Anda selesai melakukan perubahan, klik tombol simpan perubahan.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Card 8 -->
+    <div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center relative z-10">
+                <i class="fa-solid fa-database text-[#00BFFF] text-lg"></i>
+            </div>
+            <div class="flex items-center gap-1 text-gray-400">
+                <i class="fa-solid fa-circle-info text-[10px]"></i>
+                <span class="text-[10px] font-bold tracking-widest uppercase">KEBIJAKAN</span>
+            </div>
+        </div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">08. Penghapusan & Penyimpanan Data</h3>
+        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Sistem SIMM menerapkan kebijakan retensi data cadangan. Ketika ada data yang Anda hapus atau ubah melalui antarmuka pengguna, data tersebut tidak langsung hilang sepenuhnya dari database server.</p>
+        
+        <h4 class="text-[10px] font-bold text-[#00BFFF] uppercase tracking-wider mb-3">Tujuan penyimpanan data terhapus (Soft Delete):</h4>
+        <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed"><strong>Pencegahan Kehilangan Data</strong>: Menghindari hilangnya data penting secara permanen akibat kesalahan klik atau ketidaksengajaan oleh pengguna.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed"><strong>Audit Trail & Keamanan</strong>: Memungkinkan administrator melacak riwayat aktivitas pengeditan dan penghapusan guna menjaga integritas sistem.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed"><strong>Verifikasi Laporan Akhir</strong>: Menjaga konsistensi data tugas dan logbook untuk keperluan penyusunan laporan magang dan penerbitan sertifikat.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-gray-50 text-gray-500 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <p class="text-[13px] text-gray-600 leading-relaxed"><strong>Layanan Pemulihan Data</strong>: Jika Anda memerlukan pemulihan data yang tidak sengaja terhapus, Anda dapat mengajukan permohonan pemulihan melalui Administrator Diskominfosantik.</p>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Full Width Card - Security Update (Only Mandatory Password Change Remaining) -->
+<div class="bg-white border border-gray-100 rounded-[20px] p-5 sm:p-8 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden mb-8 mt-2 group">
+    <div class="absolute -right-3 -top-3 w-20 h-20 bg-[#00BFFF]/5 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-10 h-10 rounded-full bg-[#E6F7FF] flex items-center justify-center">
+            <i class="fa-solid fa-shield-halved text-[#00BFFF] text-lg"></i>
+        </div>
+        <span class="bg-red-50 text-red-500 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded border border-red-100">
+            Pembaruan Keamanan Akun
+        </span>
+    </div>
+    
+    <div>
+        <h3 class="text-[14px] sm:text-[15px] font-bold text-gray-800 mb-2">🔑 KEWAJIBAN GANTI KATA SANDI</h3>
+        <p class="text-[13px] text-gray-500 leading-relaxed max-w-4xl">
+            Demi menjaga kerahasiaan dan keamanan data, seluruh akun baru yang didaftarkan oleh sistem wajib melakukan penggantian password bawaan saat pertama kali berhasil login di halaman Pembaruan Keamanan sebelum diperbolehkan membuka dasbor utama.
+        </p>
+    </div>
+</div>
+{% endblock %}

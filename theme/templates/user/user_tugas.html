@@ -1,0 +1,318 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block top_header %}
+<header class="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 shrink-0 flex items-center justify-between">
+    <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">DAFTAR TUGAS</h2>
+</header>
+{% endblock %}
+
+{% block content %}
+<style>
+    @media (max-width: 640px) {
+        /* Sembunyikan header tabel */
+        #dataTableTugas thead {
+            display: none !important;
+        }
+        /* Jadikan baris dan sel menjadi block */
+        #dataTableTugas, 
+        #dataTableTugas tbody, 
+        #dataTableTugas tr, 
+        #dataTableTugas td {
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        /* Style baris sebagai card */
+        #dataTableTugas tbody tr {
+            margin-bottom: 1.25rem !important;
+            border: 1px solid #f3f4f6 !important;
+            border-radius: 0.75rem !important;
+            background-color: #fff !important;
+            padding: 1.25rem !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+        /* Hilangkan hover background bawaan di mobile */
+        #dataTableTugas tbody tr:hover {
+            background-color: #fff !important;
+        }
+        /* Style sel tabel */
+        #dataTableTugas td {
+            padding: 0.5rem 0 !important;
+            text-align: left !important;
+            border: none !important;
+        }
+        /* Tampilkan label kustom sebelum isi kolom */
+        #dataTableTugas td:nth-child(2)::before {
+            content: "Tenggat Waktu: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+        /* Kolom status */
+        #dataTableTugas td:nth-child(3) {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #dataTableTugas td:nth-child(3)::before {
+            content: "Status: ";
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        /* Kolom tindakan (tombol detail) */
+        #dataTableTugas td:last-child {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #f9fafb !important;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem !important;
+        }
+        
+        /* Mengatur tampilan detail task saat diekspansi */
+        #dataTableTugas tr.bg-gray-50 + tr {
+            background-color: #fafafa !important;
+            border: 1px dashed #e5e7eb !important;
+            border-radius: 0.75rem !important;
+            margin-top: -1rem !important;
+            margin-bottom: 1.25rem !important;
+            padding: 1.25rem !important;
+        }
+        #dataTableTugas tr.bg-gray-50 + tr td {
+            padding: 0 !important;
+        }
+    }
+
+    /* PREMIUM & RESPONSIVE DATATABLES CONTROLS (TAMPILKAN ENTRI & CARI) */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_length label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563; /* text-gray-600 */
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.5rem 2rem 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        margin: 0 0.5rem;
+        outline: none;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .dataTables_wrapper .dataTables_length select:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+        width: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        flex: 1;
+        width: 100%;
+        max-width: calc(100% - 60px);
+        margin-left: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        background-color: #fff;
+        color: #374151;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #00BFFF;
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.15);
+    }
+
+    /* Responsive Reset untuk Desktop */
+    @media (min-width: 640px) {
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            display: inline-flex;
+            width: auto;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            width: 240px;
+            max-width: none;
+        }
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 0;
+        }
+    }
+</style>
+
+<!-- Controls Bar -->
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+    <div>
+        <span class="text-sm font-bold text-gray-700 tracking-wide uppercase">Daftar Tugas Magang</span>
+        <p class="text-xs text-gray-500 mt-1">Daftar tugas yang diberikan oleh Pembimbing atau Admin.</p>
+    </div>
+</div>
+
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg p-4 sm:p-6">
+    <div class="w-full overflow-x-auto">
+        <table id="dataTableTugas" class="w-full text-left text-sm text-gray-600 sm:min-w-[650px]">
+            <thead class="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">TUGAS & PEMBIMBING</th>
+                    <th scope="col" class="px-6 py-4">TENGGAT WAKTU</th>
+                    <th scope="col" class="px-6 py-4 text-left">STATUS</th>
+                    <th scope="col" class="px-6 py-4 text-right">TINDAKAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tugas in tugas_list %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50" id="row-task{{ tugas.id }}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg {% if tugas.status == 'SELESAI' %}bg-green-50{% else %}bg-orange-50{% endif %} flex items-center justify-center shrink-0">
+                                <i class="fa-solid {% if tugas.status == 'SELESAI' %}fa-file-circle-check text-green-500{% else %}fa-file-lines text-orange-500{% endif %} text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="task-title text-sm font-bold {% if tugas.status == 'SELESAI' %}text-gray-500{% else %}text-gray-800{% endif %}">{{ tugas.judul_tugas }}</h4>
+                                <p class="text-[10px] {% if tugas.status == 'SELESAI' %}text-gray-400{% else %}text-gray-500{% endif %} mt-1">Dibimbing oleh: {{ tugas.pembimbing|default:"Admin" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-xs font-bold {% if tugas.status == 'SELESAI' %}text-gray-400{% else %}text-gray-500{% endif %}">
+                        <i class="fa-regular fa-calendar mr-1"></i> {{ tugas.deadline|date:"d M Y" }}
+                    </td>
+                    <td class="px-6 py-4 text-left" data-search="{% if tugas.status == 'SELESAI' %}SELESAI{% elif tugas.deadline < today %}TERLEWAT{% else %}PENDING{% endif %}">
+                        {% if tugas.status == 'SELESAI' %}
+                        <span class="bg-green-100 text-green-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">SELESAI</span>
+                        {% elif tugas.deadline < today %}
+                        <span class="bg-red-100 text-red-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">TERLEWAT</span>
+                        {% else %}
+                        <span class="bg-orange-100 text-orange-600 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">PENDING</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="toggleTask('{{ tugas.id }}')" class="text-[#00bfff] text-[10px] font-bold tracking-wider hover:underline uppercase">
+                            DETAIL
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Templates for Details -->
+<div class="hidden">
+    {% for tugas in tugas_list %}
+    <div id="template-task{{ tugas.id }}" class="p-6 bg-[#fafafa]">
+        <h5 class="text-xs font-bold {% if tugas.status == 'SELESAI' %}text-gray-500{% else %}text-gray-800{% endif %} tracking-wide uppercase mb-2">Deskripsi Penugasan</h5>
+        <p class="task-desc text-sm {% if tugas.status == 'SELESAI' %}text-gray-400{% else %}text-gray-600{% endif %} leading-relaxed mb-5">
+            {{ tugas.deskripsi_tugas }}
+        </p>
+        <div class="flex items-center gap-3">
+            {% if tugas.status == 'SELESAI' %}
+            <span class="text-xs font-semibold text-green-600 flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Tugas telah diselesaikan</span>
+            {% else %}
+            <a href="{% url 'entri_logbook' %}" class="px-5 py-2 bg-[#00BFFF] text-white rounded-md text-xs font-semibold hover:bg-[#00AEEF] transition-colors shadow-sm inline-block">
+                Kerjakan
+            </a>
+            <form method="POST" action="{% url 'daftar_tugas' %}" class="inline-block m-0">
+                {% csrf_token %}
+                <input type="hidden" name="tugas_id" value="{{ tugas.id }}">
+                <button type="submit" class="px-5 py-2 border border-gray-200 bg-white text-gray-600 rounded-md text-xs font-semibold hover:bg-gray-50 transition-colors">
+                    Tandai Selesai
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    var dataTableTugas;
+    
+    $(document).ready(function() {
+        dataTableTugas = $('#dataTableTugas').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+            pageLength: 10,
+            initComplete: function(settings, json) {
+                var filterHtml = `
+                    <div class="relative inline-block ml-0 md:ml-3 mt-2 md:mt-0">
+                        <select id="filterStatus" class="appearance-none px-4 py-1.5 pr-8 border border-[#00BFFF] rounded-md text-xs text-gray-600 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:border-[#00BFFF] cursor-pointer h-8">
+                            <option value="">Semua Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="TERLEWAT">Terlewat</option>
+                            <option value="SELESAI">Selesai</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#00BFFF]">
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </div>
+                    </div>
+                `;
+                var filterContainer = $('.dataTables_filter');
+                if (filterContainer.length) {
+                    filterContainer.addClass('flex items-center gap-2 flex-wrap').append(filterHtml);
+                    
+                    $('#filterStatus').on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        dataTableTugas.column(2).search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
+                }
+            }
+        });
+    });
+
+    function toggleTask(taskId) {
+        var tr = $('#row-task' + taskId);
+        var row = dataTableTugas.row(tr);
+        
+        if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('bg-gray-50');
+        } else {
+            var detailHtml = $('#template-task' + taskId).html();
+            row.child(detailHtml).show();
+            tr.addClass('bg-gray-50');
+        }
+    }
+</script>
+{% endblock %}

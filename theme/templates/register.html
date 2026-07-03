@@ -1,0 +1,231 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi - SIM MPP</title>
+    {% tailwind_css %}
+    <link rel="icon" type="image/png" href="{% static 'images/logo_kab-bekasi.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        #reg-captcha-text-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.625rem 0.75rem 0.625rem 2.25rem;
+            font-size: 0.875rem;
+            outline: none;
+            background: white;
+            color: #374151;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        #reg-captcha-text-input:focus {
+            border-color: #00c3ff;
+            box-shadow: 0 0 0 1px #00c3ff;
+        }
+
+        /* Hapus scrollbar secara menyeluruh di halaman registrasi */
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+        
+        html, body {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+            overflow: hidden !important;
+        }
+
+        /* Sembunyikan scrollbar pada kartu form (agar tetap bisa di-scroll di perangkat mobile tanpa memunculkan scrollbar) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none !important;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+    </style>
+</head>
+<body class="bg-cover bg-center h-screen flex items-center justify-center font-sans relative" style="background-image: url('{% static "images/Data_Centre_Building.jpg" %}');">
+    
+    <div class="absolute inset-0 bg-black/20"></div>
+    
+    <div class="relative bg-white/95 backdrop-blur-sm px-6 py-5 rounded-2xl shadow-2xl w-full max-w-[520px] z-10 flex flex-col overflow-hidden max-h-[95vh]">
+        
+        <div class="flex flex-col items-center mb-2">
+            <img src="{% static 'images/logo_diskominfo-kab-bekasi.png' %}" alt="Logo DISKOMINFOSANTIK" class="h-[42px] w-auto object-contain mx-auto mb-1 block">
+            <h2 class="text-[9px] font-bold text-[#0082c6] tracking-widest uppercase mb-0.5">DISKOMINFOSANTIK KAB. BEKASI</h2>
+            <h1 class="text-xl font-extrabold text-[#1a2b4c]">Registrasi Akun Magang</h1>
+        </div>
+
+        {% if messages %}
+        <div class="mb-2">
+            {% for message in messages %}
+            <div class="p-2.5 rounded-md text-xs {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% else %}bg-green-100 text-green-700 border border-green-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}" class="w-full space-y-2.5">
+            {% csrf_token %}
+            
+            {# ── Nama Lengkap ─────────────────────────────────────────────── #}
+            <div>
+                <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Nama Lengkap <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                        <i class="fa-regular fa-user text-xs"></i>
+                    </div>
+                    <input type="text" name="nama_lengkap" value="{{ form_data.nama_lengkap|default:'' }}"
+                           placeholder="Masukkan nama lengkap sesuai KTP" required
+                           class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                </div>
+            </div>
+
+            {# ── NIM + Universitas ─────────────────────────────────────────── #}
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">NIM <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-regular fa-address-card text-xs"></i>
+                        </div>
+                        <input type="text" name="nim" value="{{ form_data.nim|default:'' }}"
+                               placeholder="Nomor Induk Mahasiswa" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Asal Universitas <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-solid fa-graduation-cap text-xs"></i>
+                        </div>
+                        <input type="text" name="universitas" value="{{ form_data.universitas|default:'' }}"
+                               placeholder="Nama Perguruan Tinggi" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                    </div>
+                </div>
+            </div>
+
+            {# ── Email ────────────────────────────────────────────────────── #}
+            <div>
+                <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Email <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                        <i class="fa-regular fa-envelope text-xs"></i>
+                    </div>
+                    <input type="email" name="email" value="{{ form_data.email|default:'' }}"
+                           placeholder="Gunakan email aktif" required
+                           class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                </div>
+            </div>
+
+            {# ── Password ──────────────────────────────────────────────────── #}
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </div>
+                        <input type="password" name="password" placeholder="Minimal 8 karakter" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-[#4a5568] font-bold mb-1 text-left">Konfirmasi Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0]">
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                        </div>
+                        <input type="password" name="password_confirm" placeholder="Ulangi password" required
+                               class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                    </div>
+                </div>
+            </div>
+
+            {# ── Captcha Gambar ── #}
+            <div class="space-y-1.5">
+                <label class="block text-[10px] text-[#4a5568] font-bold text-left">Kode Captcha <span class="text-red-500">*</span></label>
+
+                <input type="hidden" name="captcha_0" value="{{ captcha_key }}">
+
+                <div class="flex items-center gap-3">
+                    <img id="reg-captcha-img" src="{{ captcha_image }}" alt="captcha"
+                         class="h-[36px] rounded border border-gray-200 block">
+                    <button type="button" id="btn-refresh-captcha"
+                            class="flex items-center gap-1.5 text-[#00c3ff] text-xs font-semibold hover:text-[#009acc] transition-colors whitespace-nowrap">
+                        <i class="fa-solid fa-rotate-right text-[10px]"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#a0aec0] z-10">
+                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                    </div>
+                    <input type="text" id="reg-captcha-text-input" name="captcha_1"
+                           placeholder="Masukkan kode di atas" autocomplete="off" required
+                           class="w-full border border-gray-200 rounded-md py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-[#00c3ff] focus:ring-1 focus:ring-[#00c3ff] bg-white text-gray-700">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-[#00c3ff] hover:bg-[#00a3d9] text-white font-bold py-2.5 rounded-md transition-colors flex justify-center items-center gap-2 mt-3 text-xs">
+                Daftar Akun <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="mt-3 text-[11px] text-[#a0aec0] text-center font-medium">
+            Sudah punya akun? <a href="{% url 'login' %}" class="text-[#00c3ff] font-bold hover:underline">Login di sini</a>
+        </div>
+    </div>
+
+    <!-- Firebase App Check (background reCAPTCHA v3) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-appcheck-compat.js"></script>
+    <script>
+    const firebaseConfig = {{ firebase_config|safe }};
+    firebase.initializeApp(firebaseConfig);
+    const appCheck = firebase.appCheck();
+    appCheck.activate(
+        new firebase.appCheck.ReCaptchaV3Provider('{{ recaptcha_key }}'),
+        true
+    );
+
+    /* ── Refresh Captcha Image ── */
+    (function () {
+        var btnRefresh = document.getElementById('btn-refresh-captcha');
+        if (!btnRefresh) return;
+
+        btnRefresh.addEventListener('click', function () {
+            btnRefresh.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+            btnRefresh.disabled = true;
+
+            fetch('/captcha/refresh/', {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var img = document.getElementById('reg-captcha-img');
+                if (img) img.src = data.image_url;
+
+                var hiddenKey = document.querySelector('input[name="captcha_0"]');
+                if (hiddenKey) hiddenKey.value = data.key;
+
+                var txtInput = document.getElementById('reg-captcha-text-input');
+                if (txtInput) { txtInput.value = ''; txtInput.focus(); }
+            })
+            .catch(function (err) { console.error('Refresh gagal:', err); })
+            .finally(function () {
+                btnRefresh.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Refresh';
+                btnRefresh.disabled = false;
+            });
+        });
+    })();
+    </script>
+
+</body>
+</html>

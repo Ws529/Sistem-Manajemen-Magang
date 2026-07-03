@@ -1,0 +1,126 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+    <div>
+        <h2 class="text-xs sm:text-sm font-semibold text-gray-700 tracking-wide uppercase">CATATAN AKTIVITAS SISTEM</h2>
+        <p class="text-xs text-gray-500 mt-1">Log aktivitas seluruh entri yang terjadi dalam sistem untuk keperluan audit.</p>
+    </div>
+</div>
+
+<div class="bg-white border border-gray-100 rounded-xl shadow-lg p-4 sm:p-6">
+    <form method="GET" action="" id="filterForm" class="flex flex-col sm:flex-row justify-end items-center gap-3 mb-6 w-full">
+        <!-- Filter Urutkan -->
+        <select name="urutan" onchange="this.form.submit()" class="border border-gray-200 bg-white rounded text-[11px] px-2 py-1.5 font-semibold text-gray-500 focus:outline-none focus:border-[#00bfff] shadow-sm w-full sm:w-auto">
+            <option value="terbaru" {% if urutan == 'terbaru' %}selected{% endif %}>Terbaru</option>
+            <option value="lama" {% if urutan == 'lama' %}selected{% endif %}>Terlama</option>
+        </select>
+
+        <div id="filterDropdownContainer" class="relative w-full sm:w-auto">
+            <button type="button" onclick="toggleFilter()" class="bg-white border border-gray-200 text-gray-500 px-3 py-1.5 rounded text-[11px] font-semibold hover:bg-gray-50 flex items-center justify-center gap-2 shadow-sm focus:outline-none w-full">
+                <i class="fa-solid fa-filter text-[#00bfff]"></i> Filter
+            </button>
+            <!-- Dropdown Menu -->
+            <div id="filterDropdownMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 hidden z-20">
+                <div class="px-4 py-2 border-b border-gray-100">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tipe Aktivitas</h4>
+                </div>
+                <div class="py-2">
+                    <label class="flex items-center px-4 py-1.5 hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="tipe" value="UPDATE" {% if 'UPDATE' in tipe_filter %}checked{% endif %} class="rounded border-gray-300 text-[#00bfff] focus:ring-0 focus:ring-offset-0">
+                        <span class="ml-2 text-xs text-gray-600">PERBARUI</span>
+                    </label>
+                    <label class="flex items-center px-4 py-1.5 hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="tipe" value="CREATE" {% if 'CREATE' in tipe_filter %}checked{% endif %} class="rounded border-gray-300 text-[#00bfff] focus:ring-0 focus:ring-offset-0">
+                        <span class="ml-2 text-xs text-gray-600">TAMBAH</span>
+                    </label>
+                    <label class="flex items-center px-4 py-1.5 hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="tipe" value="DELETE" {% if 'DELETE' in tipe_filter %}checked{% endif %} class="rounded border-gray-300 text-[#00bfff] focus:ring-0 focus:ring-offset-0">
+                        <span class="ml-2 text-xs text-gray-600">HAPUS</span>
+                    </label>
+                    <label class="flex items-center px-4 py-1.5 hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="tipe" value="SYSTEM" {% if 'SYSTEM' in tipe_filter %}checked{% endif %} class="rounded border-gray-300 text-[#00bfff] focus:ring-0 focus:ring-offset-0">
+                        <span class="ml-2 text-xs text-gray-600">SISTEM</span>
+                    </label>
+                </div>
+                <div class="px-4 py-2 border-t border-gray-100 bg-gray-50 rounded-b-md">
+                    <button type="submit" class="w-full bg-[#00bfff] hover:bg-[#00a3d9] text-white text-[10px] font-bold py-1.5 rounded transition-colors shadow-sm">
+                        TERAPKAN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    
+    <div class="w-full overflow-x-auto">
+        <table id="dataTable" class="w-full text-left text-sm text-gray-600 min-w-[800px]">
+            <thead class="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-4">WAKTU</th>
+                    <th scope="col" class="px-6 py-4">AKTOR / USER</th>
+                    <th scope="col" class="px-6 py-4">AKTIVITAS</th>
+                    <th scope="col" class="px-6 py-4 text-center">TIPE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for catatan in catatan_list %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2 text-[11px] text-gray-500">
+                            <i class="fa-regular fa-clock text-gray-300 text-sm"></i>
+                            <span>{{ catatan.waktu|date:"Y-m-d H:i:s" }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-gray-800">
+                            <i class="fa-regular fa-circle-check text-[#00bfff] text-sm"></i>
+                            <span>{% if catatan.aktor %}{{ catatan.aktor.first_name|default:catatan.aktor.username }}{% else %}System{% endif %}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-[11px] text-gray-500">{{ catatan.aktivitas }}</td>
+                    <td class="px-6 py-4 text-center">
+                        {% if catatan.tipe == 'CREATE' %}
+                        <span class="bg-[#e6ffed] text-green-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">TAMBAH</span>
+                        {% elif catatan.tipe == 'UPDATE' %}
+                        <span class="bg-[#e6f7ff] text-[#00bfff] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">PERBARUI</span>
+                        {% elif catatan.tipe == 'DELETE' %}
+                        <span class="bg-red-50 text-red-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">HAPUS</span>
+                        {% else %}
+                        <span class="bg-[#f3e6ff] text-purple-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">SISTEM</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+
+    </div>
+</div>
+
+<script>
+    function toggleFilter() {
+        const menu = document.getElementById('filterDropdownMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function(event) {
+        const container = document.getElementById('filterDropdownContainer');
+        const menu = document.getElementById('filterDropdownMenu');
+        if (container && !container.contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4"ip>',
+            pageLength: 10
+        });
+    });
+</script>
+{% endblock %}
