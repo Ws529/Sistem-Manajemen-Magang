@@ -4,6 +4,8 @@
 
 Sistem informasi manajemen magang & portofolio adalah platform berbasis web yang dirancang khusus untuk mengelola aktivitas magang dan pameran portofolio proyek peserta magang di **Dinas Komunikasi, Informatika, Persandian, dan Statistik (Diskominfosantik) Kabupaten Bekasi**. Sistem ini mengintegrasikan pencatatan logbook harian, penugasan terstruktur, unggah karya portofolio, hingga penerbitan sertifikat digital yang aman dan transparan.
 
+Aplikasi ini dibangun menggunakan framework **Django** & **Tailwind CSS** dengan database **MySQL** yang dijalankan menggunakan **Laragon**.
+
 ---
 
 ## 📸 Dokumentasi Tangkapan Layar (Screenshots)
@@ -129,7 +131,7 @@ Sistem ini mendukung dua peran pengguna utama (*Role-Based Access Control*): **M
 
 * **Backend Framework**: Django 6.0.4 (Python)
 * **Frontend**: HTML5, Vanilla CSS, Tailwind CSS (melalui Django Tailwind), Bootstrap
-* **Database**: MySQL (diakses via Django ORM)
+* **Database**: MySQL (diakses via Django ORM, dijalankan menggunakan Laragon)
 * **Identity Management**: Firebase Authentication (sinkronisasi data login pengguna secara real-time)
 * **Keamanan Tambahan**:
   * Integrasi **Google reCAPTCHA v2 & v3** untuk mengamankan formulir login/pendaftaran dari bot.
