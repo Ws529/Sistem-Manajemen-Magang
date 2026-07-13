@@ -11,12 +11,18 @@ SIM-MPP adalah platform berbasis web yang dirancang khusus untuk mengelola aktiv
 Berikut adalah visualisasi antarmuka Sistem Informasi Manajemen Magang & Portofolio Proyek (SIM-MPP):
 
 ### 🔑 Halaman Autentikasi (Login & Register)
-* **Mahasiswa (Peserta):**
-  * Halaman Login: `docs/screenshots/user (peserta)/login-user.png`
-  * Halaman Register: `docs/screenshots/user (peserta)/register-user.png`
-* **Admin (Pembimbing Lapangan):**
-  * Halaman Login: `docs/screenshots/admin (pembimbing lapangan)/login-admin.png`
-  * Halaman Register: `docs/screenshots/admin (pembimbing lapangan)/register-admin.png`
+
+#### 🧑‍🎓 Mahasiswa (Peserta)
+* **Halaman Login Mahasiswa:**
+  ![Login Mahasiswa](docs/screenshots/user%20%28peserta%29/login-user.png)
+* **Halaman Pendaftaran (Register) Mahasiswa:**
+  ![Register Mahasiswa](docs/screenshots/user%20%28peserta%29/register-user.png)
+
+#### 🧑‍💼 Admin (Pembimbing Lapangan)
+* **Halaman Login Admin:**
+  ![Login Admin](docs/screenshots/admin%20%28pembimbing%20lapangan%29/login-admin.png)
+* **Halaman Pendaftaran (Register) Admin:**
+  ![Register Admin](docs/screenshots/admin%20%28pembimbing%20lapangan%29/register-admin.png)
 
 ---
 
@@ -51,7 +57,19 @@ Sistem ini mendukung dua peran pengguna utama (*Role-Based Access Control*): **M
 > **Validasi Logbook (Admin):**
 > ![Validasi Logbook](docs/screenshots/admin%20%28pembimbing%20lapangan%29/logbook-peserta-admin.png)
 
-### 3. Modul Penugasan Terstruktur
+### 3. Kustomisasi Profil & Pengaturan Pengguna
+* **Kustomisasi Banner**: Pengguna dapat mengubah warna latar belakang banner profil secara instan.
+* **Circular Photo Cropper**: Dilengkapi Cropper.js untuk memotong foto profil dengan rasio 1:1 berbentuk lingkaran sebelum disimpan.
+* **Inisial Avatars**: Tombol hapus foto profil akan memicu inisial otomatis dari UI Avatars sebagai fallback.
+> *Tampilan Profil & Pengaturan:*
+> 
+> **Pengaturan Profil (Mahasiswa):**
+> ![Pengaturan Profil Mahasiswa](docs/screenshots/user%20%28peserta%29/pengaturan-user.png)
+> 
+> **Pengaturan Profil (Admin):**
+> ![Pengaturan Profil Admin](docs/screenshots/admin%20%28pembimbing%20lapangan%29/pengaturan-admin.png)
+
+### 4. Modul Penugasan Terstruktur
 * Admin dapat membuat tugas baru lengkap dengan judul, deskripsi instruksi, batas waktu (*deadline*), dan memilih mahasiswa penerimanya.
 * Mahasiswa dapat menandai tugas yang selesai dikerjakan dan mencantumkan tautan/file hasil kerja.
 > *Tampilan Modul Penugasan:*
@@ -62,7 +80,7 @@ Sistem ini mendukung dua peran pengguna utama (*Role-Based Access Control*): **M
 > **Penugasan (Admin):**
 > ![Penugasan Admin](docs/screenshots/admin%20%28pembimbing%20lapangan%29/penugasan-admin.png)
 
-### 4. Galeri Portofolio Proyek
+### 5. Galeri Portofolio Proyek
 * Mahasiswa dapat memamerkan proyek yang mereka buat selama magang dengan mengunggah detail judul, kategori (contoh: *Web App, Mobile App*), teknologi, database yang digunakan, deskripsi, gambar sampul, serta tautan repositori (GitHub/GitLab).
 * Admin dapat menyaring galeri portofolio berdasarkan kategori, teknologi, atau database secara dinamis (didukung AJAX).
 > *Tampilan Portofolio Proyek:*
@@ -73,7 +91,7 @@ Sistem ini mendukung dua peran pengguna utama (*Role-Based Access Control*): **M
 > **Galeri Portofolio (Admin):**
 > ![Galeri Portofolio](docs/screenshots/admin%20%28pembimbing%20lapangan%29/portofolio-admin.png)
 
-### 5. Manajemen Sertifikat Kelulusan
+### 6. Manajemen Sertifikat Kelulusan
 * Admin dapat mengunggah sertifikat kelulusan digital, menginput nomor sertifikat resmi, dan menandainya sebagai terverifikasi.
 * Mahasiswa dapat langsung mengunduh file sertifikat asli berformat PDF dari dashboard mereka.
 > *Tampilan Sertifikat Kelulusan:*
@@ -84,11 +102,26 @@ Sistem ini mendukung dua peran pengguna utama (*Role-Based Access Control*): **M
 > **Manajemen Sertifikat (Admin):**
 > ![Sertifikat Admin](docs/screenshots/admin%20%28pembimbing%20lapangan%29/sertifikat-admin.png)
 
-### 6. Audit Trail & Log Aktivitas (Catatan Sistem)
-* Merekam setiap operasi penting dalam basis data (`CREATE`, `UPDATE`, `DELETE`, `LOGIN`, `SYSTEM`) lengkap dengan informasi stempel waktu dan aktor yang bertanggung jawab untuk keperluan audit keamanan.
-> *Tampilan Catatan Sistem (Admin):*
+### 7. Pengawasan & Rekapitulasi Laporan (Admin)
+* **Daftar Peserta Magang**: Menampilkan semua daftar mahasiswa aktif dan detail data instansi/universitas.
+* **Rekap Laporan Performa**: Menyediakan statistik penyelesaian tugas dan logbook mahasiswa serta tombol unduh rekap data format CSV.
+* **Audit Trail (Catatan Sistem)**: Mencatat riwayat operasional basis data secara real-time demi transparansi dan audit keamanan.
+> *Tampilan Pengawasan & Laporan:*
 > 
+> **Daftar Peserta Magang:**
+> ![Daftar Peserta Magang](docs/screenshots/admin%20%28pembimbing%20lapangan%29/data-peserta-admin.png)
+> 
+> **Rekap Laporan Performa:**
+> ![Rekap Laporan Performa](docs/screenshots/admin%20%28pembimbing%20lapangan%29/laporan-admin.png)
+> 
+> **Catatan Sistem (Audit Log):**
 > ![Catatan Sistem](docs/screenshots/admin%20%28pembimbing%20lapangan%29/catatan-sistem-admin.png)
+
+### 8. Pusat Bantuan & Tutorial (Mahasiswa)
+* Menyediakan panduan penggunaan sistem dan pintasan kontak bantuan kepada pengurus / admin.
+> *Tampilan Pusat Bantuan:*
+> 
+> ![Pusat Bantuan & Tutorial](docs/screenshots/user%20%28peserta%29/support%26tutorial-user.png)
 
 ---
 
