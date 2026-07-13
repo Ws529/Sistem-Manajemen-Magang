@@ -1,8 +1,8 @@
-# Sistem Informasi Manajemen Magang & Portofolio Proyek (SIM-MPP)
+# Sistem Informasi Manajemen Magang & Portofolio Proyek 
 
 ![SIM-MPP Logo](theme/static/images/logo_diskominfo-kab-bekasi.png)
 
-SIM-MPP adalah platform berbasis web yang dirancang khusus untuk mengelola aktivitas magang dan pameran portofolio proyek peserta magang di **Dinas Komunikasi, Informatika, Persandian, dan Statistik (Diskominfosantik) Kabupaten Bekasi**. Sistem ini mengintegrasikan pencatatan logbook harian, penugasan terstruktur, unggah karya portofolio, hingga penerbitan sertifikat digital yang aman dan transparan.
+Sistem informasi manajemen magang & portofolio adalah platform berbasis web yang dirancang khusus untuk mengelola aktivitas magang dan pameran portofolio proyek peserta magang di **Dinas Komunikasi, Informatika, Persandian, dan Statistik (Diskominfosantik) Kabupaten Bekasi**. Sistem ini mengintegrasikan pencatatan logbook harian, penugasan terstruktur, unggah karya portofolio, hingga penerbitan sertifikat digital yang aman dan transparan.
 
 ---
 
