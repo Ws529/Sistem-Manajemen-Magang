@@ -178,13 +178,22 @@ def profile_view(request):
             current_user.jenis_kelamin = jk_map.get(jenis_kelamin_baru, jenis_kelamin_baru)
             fields_to_update.append('jenis_kelamin')
 
-        avatar = request.FILES.get('avatar')
-        if avatar:
-            if avatar.name.lower().endswith(('.jpg', '.jpeg', '.png')):
-                current_user.avatar = avatar
-                fields_to_update.append('avatar')
-            else:
-                messages.error(request, 'Format foto tidak valid. Hanya menerima .jpg dan .png')
+        delete_avatar = request.POST.get('delete_avatar')
+        if delete_avatar == 'true':
+            if current_user.avatar:
+                current_user.avatar.delete(save=False)
+            current_user.avatar = None
+            fields_to_update.append('avatar')
+        else:
+            avatar = request.FILES.get('avatar')
+            if avatar:
+                if avatar.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    if current_user.avatar:
+                        current_user.avatar.delete(save=False)
+                    current_user.avatar = avatar
+                    fields_to_update.append('avatar')
+                else:
+                    messages.error(request, 'Format foto tidak valid. Hanya menerima .jpg dan .png')
 
         if fields_to_update:
             current_user.save(update_fields=fields_to_update)

@@ -611,13 +611,22 @@ def admin_pengaturan(request):
             admin_user.username = email_baru
             fields_to_update.extend(['email', 'username'])
 
-        avatar = request.FILES.get('avatar')
-        if avatar:
-            if avatar.name.lower().endswith(('.jpg', '.jpeg', '.png')):
-                admin_user.avatar = avatar
-                fields_to_update.append('avatar')
-            else:
-                messages.error(request, 'Format foto tidak valid. Hanya menerima .jpg dan .png')
+        delete_avatar = request.POST.get('delete_avatar')
+        if delete_avatar == 'true':
+            if admin_user.avatar:
+                admin_user.avatar.delete(save=False)
+            admin_user.avatar = None
+            fields_to_update.append('avatar')
+        else:
+            avatar = request.FILES.get('avatar')
+            if avatar:
+                if avatar.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    if admin_user.avatar:
+                        admin_user.avatar.delete(save=False)
+                    admin_user.avatar = avatar
+                    fields_to_update.append('avatar')
+                else:
+                    messages.error(request, 'Format foto tidak valid. Hanya menerima .jpg dan .png')
 
         if fields_to_update:
             admin_user.save(update_fields=fields_to_update)

@@ -77,13 +77,24 @@
                 onchange="previewImage(this)"
               />
             </div>
-            <label
-              for="avatarInput"
-              class="text-gray-600 border border-gray-200 bg-white shadow-sm text-[10px] font-bold px-4 py-1.5 rounded-full hover:bg-gray-50 hover:text-[#00bfff] transition-all z-10 flex items-center gap-1.5 cursor-pointer"
-            >
-              <i class="fa-solid fa-cloud-arrow-up text-[#00bfff]"></i> UBAH
-              FOTO
-            </label>
+            <input type="hidden" name="delete_avatar" id="deleteAvatarInput" value="false">
+            <div class="flex items-center gap-2 z-10">
+              <label
+                for="avatarInput"
+                class="text-gray-600 border border-gray-200 bg-white shadow-sm text-[10px] font-bold px-4 py-1.5 rounded-full hover:bg-gray-50 hover:text-[#00bfff] transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <i class="fa-solid fa-cloud-arrow-up text-[#00bfff]"></i> UBAH FOTO
+              </label>
+              <button
+                type="button"
+                id="btnHapusFoto"
+                onclick="deleteAdminImage()"
+                class="text-gray-600 border border-gray-200 bg-white shadow-sm text-[10px] font-bold px-4 py-1.5 rounded-full hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all flex items-center gap-1.5"
+                {% if not request.user.avatar %}style="display: none;"{% endif %}
+              >
+                <i class="fa-solid fa-trash text-red-500"></i> HAPUS FOTO
+              </button>
+            </div>
           </div>
 
           <!-- Name & Title -->
@@ -510,6 +521,10 @@
       
       // Update preview di halaman utama secara dinamis
       document.getElementById('avatarPreview').src = URL.createObjectURL(blob);
+
+      // Reset delete flag and show the delete button
+      document.getElementById('deleteAvatarInput').value = 'false';
+      document.getElementById('btnHapusFoto').style.display = 'inline-flex';
       
       // Tutup modal
       const modal = document.getElementById('cropModal');
@@ -523,6 +538,13 @@
         cropper = null;
       }, 300);
     }, originalFile.type || 'image/jpeg', 0.9);
+  }
+
+  function deleteAdminImage() {
+    document.getElementById('deleteAvatarInput').value = 'true';
+    document.getElementById('avatarPreview').src = "https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username|urlencode }}&background=1f2937&color=fff&size=200";
+    document.getElementById('btnHapusFoto').style.display = 'none';
+    document.getElementById('avatarInput').value = '';
   }
 
   // ─── Color Picker Banner ─────────────────────────────────

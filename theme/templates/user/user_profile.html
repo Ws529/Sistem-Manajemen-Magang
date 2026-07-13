@@ -84,17 +84,29 @@
 
     
     <div class="flex flex-col items-center mr-0 sm:mr-6 relative z-10">
-        <div class="w-20 h-20 rounded-full overflow-hidden border-[3px] border-white shadow-sm mb-2">
+        <div class="w-20 h-20 rounded-full overflow-hidden border-[3px] border-white shadow-sm mb-2 bg-gray-100 flex items-center justify-center">
             {% if request.user.avatar %}
             <img id="avatarPreviewUser" src="{{ request.user.avatar.url }}" alt="Foto Profil" class="w-full h-full object-cover">
             {% else %}
             <img id="avatarPreviewUser" src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username|urlencode }}&background=00c3ff&color=fff&size=200" alt="Foto Profil" class="w-full h-full object-cover">
             {% endif %}
         </div>
-        <label class="bg-white border border-[#00BFFF] text-[#00BFFF] text-[10px] font-semibold px-3 py-1 rounded-full hover:bg-sky-50 cursor-pointer">
-            Ubah Foto Profil
-            <input type="file" name="avatar" accept=".jpg, .jpeg, .png" class="hidden" onchange="previewUserImage(this)">
-        </label>
+        <input type="hidden" name="delete_avatar" id="deleteAvatarInputUser" value="false">
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+            <label class="bg-white border border-[#00BFFF] text-[#00BFFF] text-[10px] font-semibold px-3 py-1 rounded-full hover:bg-sky-50 cursor-pointer text-center whitespace-nowrap">
+                Ubah Foto Profil
+                <input type="file" id="avatarInputUser" name="avatar" accept=".jpg, .jpeg, .png" class="hidden" onchange="previewUserImage(this)">
+            </label>
+            <button
+                type="button"
+                id="btnHapusFotoUser"
+                onclick="deleteUserImage()"
+                class="bg-white border border-red-500 text-red-500 text-[10px] font-semibold px-3 py-1 rounded-full hover:bg-red-50 text-center whitespace-nowrap flex items-center gap-1.5"
+                {% if not request.user.avatar %}style="display: none;"{% endif %}
+            >
+                <i class="fa-solid fa-trash text-red-500"></i> Hapus Foto
+            </button>
+        </div>
         <p class="text-[9px] text-gray-500 mt-2 text-center max-w-[140px] leading-tight">*Disarankan memakai foto menggunakan almamater</p>
     </div>
     
@@ -409,6 +421,10 @@
             
             // Update preview di halaman utama secara dinamis
             document.getElementById('avatarPreviewUser').src = URL.createObjectURL(blob);
+
+            // Reset delete flag and show the delete button
+            document.getElementById('deleteAvatarInputUser').value = 'false';
+            document.getElementById('btnHapusFotoUser').style.display = 'inline-flex';
             
             // Tutup modal
             const modal = document.getElementById('cropModal');
@@ -422,6 +438,13 @@
                 cropper = null;
             }, 300);
         }, originalFile.type || 'image/jpeg', 0.9);
+    }
+
+    function deleteUserImage() {
+        document.getElementById('deleteAvatarInputUser').value = 'true';
+        document.getElementById('avatarPreviewUser').src = "https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username|urlencode }}&background=00c3ff&color=fff&size=200";
+        document.getElementById('btnHapusFotoUser').style.display = 'none';
+        document.getElementById('avatarInputUser').value = '';
     }
 </script>
 {% endblock %}

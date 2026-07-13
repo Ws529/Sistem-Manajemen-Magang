@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2026-07-08T07:45:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.3.0 Safari/537.36" version="21.6.8" type="device">
+  <diagram id="blackbox-testing-sim-mpp" name="Diagram Kerja Black Box SIM-MPP">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <!-- Layer 0 -->
+        <mxCell id="0" />
+        <!-- Layer 1 -->
+        <mxCell id="1" parent="0" />
+
+        <!-- 1. Arrow Left (Input Data Uji SIM-MPP) -->
+        <mxCell id="arrow_input" value="&lt;b&gt;INPUT DATA UJI (SIM-MPP)&lt;/b&gt;&lt;br/&gt;&lt;div style=&quot;text-align: left; margin-left: 20px; font-size: 11px;&quot;&gt;• Form Registrasi &amp;amp; Login&lt;br/&gt;• Form Logbook &amp;amp; Lampiran File&lt;br/&gt;• Upload Tugas &amp;amp; Portofolio&lt;br/&gt;• Input Validasi Token reCAPTCHA&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;fillColor=#1a365d;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;fontSize=13;fontFamily=Helvetica;whiteSpace=wrap;spacingRight=35;" vertex="1" parent="1">
+          <mxGeometry x="20" y="160" width="280" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- 2. Black Box (Sistem SUT SIM-MPP) -->
+        <mxCell id="blackbox_cube" value="&lt;b&gt;BLACK BOX SYSTEM&lt;/b&gt;&lt;br/&gt;&lt;b&gt;Sistem SIM-MPP&lt;/b&gt;&lt;br/&gt;&lt;font size=&quot;2&quot; style=&quot;font-weight: normal;&quot;&gt;(Django &amp;amp; Firebase Auth)&lt;br/&gt;&lt;br/&gt;Fokus: Validasi Input &amp;amp; Fungsionalitas Sistem&lt;/font&gt;" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.15;darkOpacity2=0.25;fillColor=#2b6cb0;strokeColor=#1a365d;strokeWidth=2;fontColor=#FFFFFF;align=center;verticalAlign=middle;fontSize=13;fontFamily=Helvetica;spacingLeft=0;spacingTop=15;" vertex="1" parent="1">
+          <mxGeometry x="325" y="140" width="180" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- 3. Arrow Right (Output / Reaksi Sistem SIM-MPP) -->
+        <mxCell id="arrow_output" value="&lt;b&gt;OUTPUT &amp;amp; REAKSI SISTEM&lt;/b&gt;&lt;br/&gt;&lt;div style=&quot;text-align: left; margin-left: 15px; font-size: 11px;&quot;&gt;• Penyimpanan MySQL &amp;amp; Firebase Auth&lt;br/&gt;• Pengiriman SMTP Email Aktivasi&lt;br/&gt;• Hasil Unduhan Word/Excel/PDF&lt;br/&gt;• Feedback Pesan Error &amp;amp; Notifikasi&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;html=1;fillColor=#2a4365;strokeColor=none;fontColor=#FFFFFF;align=center;verticalAlign=middle;fontSize=13;fontFamily=Helvetica;whiteSpace=wrap;spacingRight=35;" vertex="1" parent="1">
+          <mxGeometry x="530" y="160" width="280" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
